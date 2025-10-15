@@ -50,6 +50,13 @@
         <version>8.0.33</version>
     </dependency>
 
+    <!-- Spring Security -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+
+
     <!-- Logging (SLF4J / Logback via Spring Boot Starter) -->
     <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -63,6 +70,7 @@
         <scope>test</scope>
     </dependency>
 </dependencies>
+
 
     <build>
         <plugins>

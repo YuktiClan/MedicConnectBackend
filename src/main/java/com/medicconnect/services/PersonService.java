@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,32 +21,65 @@ public class PersonService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    // -----------------------------
     // Create a new person/user
+    // -----------------------------
     public Person createPerson(Person person) {
-
-        // Only generate userId if personal email and phone are present
-        if(person.getPersonalEmail() != null && person.getPhoneNumber() != null) {
-            String userId = idGeneratorService.generateUserId(person.getRole(), person.getOrgId());
+        if (person.getEmail() != null && person.getPhoneNumber() != null) {
+            String userId = idGeneratorService.generateUserId(
+                    person.getRole(),
+                    person.getOrganization() != null ? person.getOrganization().getId().toString() : null
+            );
             person.setUserId(userId);
 
-            // Encode password
-            if(person.getPassword() != null) {
+            if (person.getPassword() != null) {
                 person.setPassword(passwordEncoder.encode(person.getPassword()));
             }
         }
-
         return personRepository.save(person);
     }
 
-    // Find by userId
+    // -----------------------------
+    // Get all persons
+    // -----------------------------
+    public List<Person> getAllPersons() {
+        return personRepository.findAll();
+    }
+
+    // -----------------------------
+    // Find person by ID
+    // -----------------------------
+    public Optional<Person> findById(Long id) {
+        return personRepository.findById(id);
+    }
+
+    // -----------------------------
+    // Save/Update person
+    // -----------------------------
+    public Person savePerson(Person person) {
+        return personRepository.save(person);
+    }
+
+    // -----------------------------
+    // Delete person
+    // -----------------------------
+    public void deletePerson(Person person) {
+        personRepository.delete(person);
+    }
+
+    // -----------------------------
+    // Find person by userId
+    // -----------------------------
     public Optional<Person> findByUserId(String userId) {
         return personRepository.findByUserId(userId);
     }
 
+    // -----------------------------
     // Change password
+    // -----------------------------
     public boolean changePassword(String userId, String newPassword) {
         Optional<Person> optionalPerson = findByUserId(userId);
-        if(optionalPerson.isPresent()) {
+        if (optionalPerson.isPresent()) {
             Person person = optionalPerson.get();
             person.setPassword(passwordEncoder.encode(newPassword));
             personRepository.save(person);

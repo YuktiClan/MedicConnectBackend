@@ -16,6 +16,8 @@ public class Organization {
     private String registrationNumber;
     private Integer yearOfEstablishment;
     private String ownershipType;
+    private String type;   // e.g., "Hospital" or "Clinic"
+    private String orgId;
 
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL)
     private List<Person> persons;
@@ -41,4 +43,10 @@ public class Organization {
 
     public List<Person> getPersons() { return persons; }
     public void setPersons(List<Person> persons) { this.persons = persons; }
+
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
+
+    public String getOrgId() { return orgId; }
+    public void setOrgId(String orgId) { this.orgId = orgId; } 
 }

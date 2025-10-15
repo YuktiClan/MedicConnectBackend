@@ -2,8 +2,8 @@ package com.medicconnect.controllers;
 
 import com.medicconnect.models.Person;
 import com.medicconnect.models.Organization;
-import com.medicconnect.repositories.PersonRepository;
 import com.medicconnect.repositories.OrganizationRepository;
+import com.medicconnect.services.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +15,7 @@ import java.util.List;
 public class PersonController {
 
     @Autowired
-    private PersonRepository personRepository;
+    private PersonService personService;
 
     @Autowired
     private OrganizationRepository organizationRepository;
@@ -23,13 +23,13 @@ public class PersonController {
     // Get all persons
     @GetMapping
     public List<Person> getAllPersons() {
-        return personRepository.findAll();
+        return personService.getAllPersons();
     }
 
     // Get person by ID
     @GetMapping("/{id}")
     public ResponseEntity<Person> getPersonById(@PathVariable Long id) {
-        return personRepository.findById(id)
+        return personService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -42,14 +42,15 @@ public class PersonController {
             if (org == null) return ResponseEntity.badRequest().build();
             person.setOrganization(org);
         }
-        Person savedPerson = personRepository.save(person);
+
+        Person savedPerson = personService.createPerson(person);
         return ResponseEntity.ok(savedPerson);
     }
 
     // Update a person
     @PutMapping("/{id}")
     public ResponseEntity<Person> updatePerson(@PathVariable Long id, @RequestBody Person updatedPerson) {
-        return personRepository.findById(id).map(person -> {
+        return personService.findById(id).map(person -> {
             person.setName(updatedPerson.getName());
             person.setDob(updatedPerson.getDob());
             person.setGender(updatedPerson.getGender());
@@ -62,7 +63,7 @@ public class PersonController {
                 person.setOrganization(org);
             }
 
-            personRepository.save(person);
+            personService.savePerson(person);
             return ResponseEntity.ok(person);
         }).orElse(ResponseEntity.notFound().build());
     }
@@ -70,8 +71,8 @@ public class PersonController {
     // Delete a person
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePerson(@PathVariable Long id) {
-        return personRepository.findById(id).map(person -> {
-            personRepository.delete(person);
+        return personService.findById(id).map(person -> {
+            personService.deletePerson(person);
             return ResponseEntity.ok().<Void>build();
         }).orElse(ResponseEntity.notFound().build());
     }

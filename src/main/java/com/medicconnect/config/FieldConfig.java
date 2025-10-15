@@ -107,8 +107,13 @@ public final class FieldConfig {
         map.put(F_ADDRESS_PIN_ORG, createBasicField("pincode", "Pin Code", "text", "organization.address.pincode", false, null));
 
         // Organization contact
-        map.put(F_ORG_EMAIL, createBasicField("email", "Email ID", "email", "organization.email", true, "example@domain.com"));
-        map.put(F_ORG_MOBILE, createBasicField("mobile", "Mobile", "phone", "organization.mobile", true, "Enter mobile"));
+        Map<String, Object> orgEmail = createBasicField("email", "Email ID", "email", "organization.email", true, "example@domain.com");
+        orgEmail.put("verifyButton", true);
+        map.put(F_ORG_EMAIL, orgEmail);
+
+        Map<String, Object> orgMobile = createBasicField("mobile", "Mobile", "phone", "organization.mobile", true, "Enter mobile");
+        orgMobile.put("verifyButton", true); // Added phone verification
+        map.put(F_ORG_MOBILE, orgMobile);
 
         // Landline
         map.put(F_LANDLINE_COUNTRY, createBasicField("landline.countryCode", "Landline Country Code", "text", "landline.country_code", false, "Country code"));
@@ -121,17 +126,20 @@ public final class FieldConfig {
         // Personal/Admin fields
         map.put(F_NAME, createBasicField("name", "Name", "text", "personal.name", true, null));
         map.put(F_DOB, createBasicField("dob", "Date Of Birth", "date", "personal.dob", false, "DD/MM/YYYY"));
-        map.put(F_GENDER, createFieldWithOptions("gender", "Gender", "select", "personal.gender", false, List.of("Male","Female","Others")));
+        map.put(F_GENDER, createFieldWithOptions("gender", "Gender", "select", "personal.gender", false, List.of("Male","Female","Others", "Prefer not to say")));
         map.put(F_BLOOD_GROUP, createFieldWithOptions("bloodGroup", "Blood Group", "select", "personal.bloodGroup", false, List.of("A+","A-","B+","B-","AB+","AB-","O+","O-")));
 
         // Personal contact
         Map<String, Object> personalEmail = createBasicField("email", "Email ID", "email", "personal.email", true, "example@domain.com");
         personalEmail.put("note", "Always use your personal email here");
+        personalEmail.put("verifyButton", true);
         map.put(F_EMAIL_PERSONAL, personalEmail);
-        map.put(F_SAME_AS_ORG_EMAIL, createCheckbox("sameAsOrgEmail", "Same as Organization", "organization.email", "personal.email"));
 
         Map<String, Object> personalMobile = createBasicField("mobile", "Mobile", "phone", "personal.mobile", true, "Enter mobile");
+        personalMobile.put("verifyButton", true); // Added phone verification
         map.put(F_MOBILE_PERSONAL, personalMobile);
+
+        map.put(F_SAME_AS_ORG_EMAIL, createCheckbox("sameAsOrgEmail", "Same as Organization", "organization.email", "personal.email"));
         map.put(F_SAME_AS_ORG_MOBILE, createCheckbox("sameAsOrgMobile", "Same as Organization", "organization.mobile", "personal.mobile"));
 
         // Personal address
