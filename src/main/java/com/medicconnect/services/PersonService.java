@@ -26,12 +26,20 @@ public class PersonService {
     // -----------------------------
     public Person createPerson(Person person) {
         if (person.getEmail() != null && person.getPhoneNumber() != null) {
+
+            // Ensure role is set
+            if (person.getRole() == null) {
+                person.setRole("ADMIN");
+            }
+
+            // Generate unique userId safely
             String userId = idGeneratorService.generateUserId(
                     person.getRole(),
                     person.getOrganization() != null ? person.getOrganization().getId().toString() : null
             );
             person.setUserId(userId);
 
+            // Encode password if provided
             if (person.getPassword() != null) {
                 person.setPassword(passwordEncoder.encode(person.getPassword()));
             }

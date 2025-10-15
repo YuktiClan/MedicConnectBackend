@@ -134,12 +134,11 @@ public final class FieldConfig {
         personalEmail.put("note", "Always use your personal email here");
         personalEmail.put("verifyButton", true);
         map.put(F_EMAIL_PERSONAL, personalEmail);
+        map.put(F_SAME_AS_ORG_EMAIL, createCheckbox("sameAsOrgEmail", "Same as Organization", "organization.email", "personal.email"));
 
         Map<String, Object> personalMobile = createBasicField("mobile", "Mobile", "phone", "personal.mobile", true, "Enter mobile");
         personalMobile.put("verifyButton", true); // Added phone verification
         map.put(F_MOBILE_PERSONAL, personalMobile);
-
-        map.put(F_SAME_AS_ORG_EMAIL, createCheckbox("sameAsOrgEmail", "Same as Organization", "organization.email", "personal.email"));
         map.put(F_SAME_AS_ORG_MOBILE, createCheckbox("sameAsOrgMobile", "Same as Organization", "organization.mobile", "personal.mobile"));
 
         // Personal address

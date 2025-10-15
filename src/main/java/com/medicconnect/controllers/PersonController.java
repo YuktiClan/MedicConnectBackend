@@ -20,13 +20,17 @@ public class PersonController {
     @Autowired
     private OrganizationRepository organizationRepository;
 
+    // -----------------------------
     // Get all persons
+    // -----------------------------
     @GetMapping
     public List<Person> getAllPersons() {
         return personService.getAllPersons();
     }
 
+    // -----------------------------
     // Get person by ID
+    // -----------------------------
     @GetMapping("/{id}")
     public ResponseEntity<Person> getPersonById(@PathVariable Long id) {
         return personService.findById(id)
@@ -34,7 +38,9 @@ public class PersonController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // -----------------------------
     // Create a new person linked to an organization
+    // -----------------------------
     @PostMapping
     public ResponseEntity<Person> createPerson(@RequestBody Person person) {
         if (person.getOrganization() != null && person.getOrganization().getId() != null) {
@@ -43,11 +49,16 @@ public class PersonController {
             person.setOrganization(org);
         }
 
+        // Force role to ADMIN for org registration
+        person.setRole("ADMIN");
+
         Person savedPerson = personService.createPerson(person);
         return ResponseEntity.ok(savedPerson);
     }
 
+    // -----------------------------
     // Update a person
+    // -----------------------------
     @PutMapping("/{id}")
     public ResponseEntity<Person> updatePerson(@PathVariable Long id, @RequestBody Person updatedPerson) {
         return personService.findById(id).map(person -> {
@@ -68,7 +79,9 @@ public class PersonController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    // -----------------------------
     // Delete a person
+    // -----------------------------
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePerson(@PathVariable Long id) {
         return personService.findById(id).map(person -> {
