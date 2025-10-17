@@ -5,8 +5,8 @@ import jakarta.mail.internet.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 
 @Service
@@ -28,7 +28,8 @@ public class EmailService {
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", "587");
 
-        return Session.getInstance(props, new Authenticator() {
+        // Jakarta Mail Authenticator
+        return Session.getInstance(props, new jakarta.mail.Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(emailUser, emailPass);
@@ -48,7 +49,7 @@ public class EmailService {
         }
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
         message.setSubject(subject);
-        message.setSentDate(new Date());
+        message.setSentDate(java.util.Date.from(LocalDateTime.now().atZone(java.time.ZoneId.systemDefault()).toInstant()));
         message.setContent(htmlBody, "text/html; charset=utf-8");
 
         Transport.send(message);
@@ -59,7 +60,7 @@ public class EmailService {
     // Organization Registration Email
     // -----------------------------
     public String generateOrgRegistrationSuccessEmail(String orgName, String category, String registrationNumber, String orgId) {
-        String createdAt = new SimpleDateFormat("dd MMM yyyy, hh:mm a").format(new Date());
+        String createdAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a"));
         return """
         <html>
         <body style="font-family:Arial,sans-serif; background:#f4f8fb; padding:20px;">
@@ -90,8 +91,8 @@ public class EmailService {
     // -----------------------------
     // Person/User Registration Email
     // -----------------------------
-    public String generatePersonRegistrationSuccessEmail(String name, String role, String userId, String email, String orgName, Date createdAt) {
-        String registeredAt = new SimpleDateFormat("dd MMM yyyy, hh:mm a").format(createdAt);
+    public String generatePersonRegistrationSuccessEmail(String name, String role, String userId, String email, String orgName, LocalDateTime createdAt) {
+        String registeredAt = createdAt.format(DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a"));
         return """
         <html>
         <body style="font-family:Arial,sans-serif; background:#f4f8fb; padding:20px;">
@@ -122,7 +123,7 @@ public class EmailService {
     // Login OTP Email
     // -----------------------------
     public String generateLoginOtpEmail(String name, String otp) {
-        String issuedAt = new SimpleDateFormat("dd MMM yyyy, hh:mm a").format(new Date());
+        String issuedAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a"));
         return """
         <html>
         <body style="font-family:Arial,sans-serif; background:#f4f8fb; padding:20px;">

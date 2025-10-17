@@ -51,7 +51,8 @@ public class PersonService {
 
         Object dobObj = personalData.get("dob");
         if (dobObj != null) {
-            person.setDob(LocalDate.parse(dobString.substring(0, 10)));
+            String dobString = dobObj.toString().substring(0, 10); // "yyyy-MM-dd"
+            person.setDob(LocalDate.parse(dobString));
         }
 
         Map<String, Object> address = (Map<String, Object>) personalData.get("address");

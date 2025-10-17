@@ -59,11 +59,9 @@ public class Person {
     // -----------------------------
     // Timestamps
     // -----------------------------
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false, updatable = false)
+    
     private LocalDateTime registrationDate;
 
-    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime associatedDate;
 
     // -----------------------------
@@ -85,9 +83,12 @@ public class Person {
     // -----------------------------
     @PrePersist
     protected void onCreate() {
-        if (this.userId == null) this.userId = "USR-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        if (this.registrationDate == null) this.registrationDate = new Date();
-    }
+    if (this.userId == null)
+        this.userId = "USR-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    if (this.registrationDate == null)
+        this.registrationDate = LocalDateTime.now();
+}
+
 
     // -----------------------------
     // Getters & Setters

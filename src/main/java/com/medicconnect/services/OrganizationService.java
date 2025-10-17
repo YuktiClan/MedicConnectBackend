@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
+
 public class OrganizationService {
 
     private final OrganizationRepository organizationRepository;
@@ -21,6 +23,11 @@ public class OrganizationService {
         this.organizationRepository = organizationRepository;
         this.idGeneratorService = idGeneratorService;
     }
+    
+public Optional<Organization> findByOrganizationNameOptional(String name) {
+    return organizationRepository.findByOrganizationName(name);
+}
+
 
     @Transactional
     public Organization createOrganizationFromMap(Map<String, Object> orgData) {

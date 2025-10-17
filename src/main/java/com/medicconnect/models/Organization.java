@@ -16,19 +16,27 @@ public class Organization {
     @Column(name = "org_id", unique = true, nullable = false, updatable = false)
     private String orgId;
 
+    @Column(name = "organization_name")
     private String organizationName;
+
     private String category;
     private String registrationNumber;
     private Integer yearOfEstablishment;
     private String ownershipType;
     private String type;
+
+    @Column(nullable = false)
     private String email;
+
     private String mobile;
     private String fullAddress;
     private String country;
     private String state;
     private String city;
     private String pincode;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -38,10 +46,15 @@ public class Organization {
     @Column(columnDefinition = "TEXT")
     private String documents;
 
+    // Automatically set orgId and createdAt before persisting
     @PrePersist
     protected void onCreate() {
-        if (this.orgId == null) this.orgId = "ORG-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        if (this.createdAt == null) this.createdAt = new Date();
+        if (this.orgId == null) {
+            this.orgId = "ORG-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        }
+        if (this.createdAt == null) {
+            this.createdAt = new Date();
+        }
     }
 
     // -----------------------------

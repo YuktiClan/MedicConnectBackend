@@ -49,7 +49,7 @@ public class PersonController {
                 String orgName = person.getOrganization() != null ? person.getOrganization().getOrganizationName() : "N/A";
                 String htmlBody = emailService.generatePersonRegistrationSuccessEmail(
                         person.getName(), person.getRole(), person.getUserId(),
-                        person.getEmail(), orgName, new Date()
+                        person.getEmail(), orgName, LocalDateTime.now() 
                 );
                 emailService.sendEmail(person.getEmail(),
                         "Medic-connect | Registration Successful",

@@ -12,8 +12,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Optional;
 
 @SpringBootApplication
 public class App {
@@ -27,11 +28,16 @@ public class App {
     CommandLineRunner run(OrganizationService orgService, PersonService personService, BCryptPasswordEncoder encoder) {
         return args -> {
             // ----------------------
-            // Sample organization DTO
+            // Sample organization
             // ----------------------
             String orgName = "City Hospital";
-            Organization org = orgService.findByOrganizationName(orgName);
-            if (org == null) {
+            Optional<Organization> optionalOrg = orgService.findByOrganizationNameOptional(orgName);
+
+            Organization org;
+            if (optionalOrg.isPresent()) {
+                org = optionalOrg.get();
+                System.out.println("Organization already exists: " + orgName);
+            } else {
                 OrganizationDTO orgDTO = new OrganizationDTO();
                 orgDTO.setOrganizationName(orgName);
                 orgDTO.setCategory("Hospital");
@@ -45,16 +51,18 @@ public class App {
 
                 org = orgDTO.toOrganization();
                 org = orgService.createOrganization(org);
+
+                System.out.println("Created sample organization: " + orgName);
             }
 
             // ----------------------
-            // Sample person DTO
+            // Sample person
             // ----------------------
             String email = "john.doe@example.com";
             if (!personService.existsByEmail(email)) {
                 PersonDTO personDTO = new PersonDTO();
                 personDTO.setName("John Doe");
-                personDTO.setDob(new SimpleDateFormat("yyyy-MM-dd").parse("1985-06-15"));
+                personDTO.setDob(LocalDate.parse("1985-06-15")); // yyyy-MM-dd format
                 personDTO.setGender("Male");
                 personDTO.setBloodGroup("O+");
                 personDTO.setMobile("9876543210");
@@ -70,7 +78,7 @@ public class App {
 
                 personService.createPerson(person);
 
-                System.out.println("Sample person saved successfully using services!");
+                System.out.println("Sample person saved successfully: " + email);
             } else {
                 System.out.println("Sample person already exists. Skipping insert.");
             }
