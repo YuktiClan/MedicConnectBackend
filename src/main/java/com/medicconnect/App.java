@@ -1,47 +1,79 @@
 package com.medicconnect;
 
+import com.medicconnect.dto.OrganizationDTO;
+import com.medicconnect.dto.PersonDTO;
 import com.medicconnect.models.Organization;
 import com.medicconnect.models.Person;
-import com.medicconnect.repositories.OrganizationRepository;
-import com.medicconnect.repositories.PersonRepository;
+import com.medicconnect.services.OrganizationService;
+import com.medicconnect.services.PersonService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 
 @SpringBootApplication
-public class App {  // or MedicConnectBackendApplication
+public class App {
 
     public static void main(String[] args) {
         SpringApplication.run(App.class, args);
         System.out.println("MedicConnectBackend is running...");
     }
 
-    // CommandLineRunner to test DB connection
     @Bean
-    CommandLineRunner run(OrganizationRepository orgRepo, PersonRepository personRepo) {
+    CommandLineRunner run(OrganizationService orgService, PersonService personService, BCryptPasswordEncoder encoder) {
         return args -> {
-            // Create a sample organization
-            Organization org = new Organization();
-            org.setName("City Hospital");
-            org.setCategory("Hospital");
-            org.setRegistrationNumber("H2033");
-            org.setYearOfEstablishment(2005);
-            org.setOwnershipType("Private");
-            orgRepo.save(org);
+            // ----------------------
+            // Sample organization DTO
+            // ----------------------
+            String orgName = "City Hospital";
+            Organization org = orgService.findByOrganizationName(orgName);
+            if (org == null) {
+                OrganizationDTO orgDTO = new OrganizationDTO();
+                orgDTO.setOrganizationName(orgName);
+                orgDTO.setCategory("Hospital");
+                orgDTO.setRegistrationNumber("H2033");
+                orgDTO.setYearOfEstablishment(2005);
+                orgDTO.setOwnershipType("Private");
+                orgDTO.setMobile("01122334455");
+                orgDTO.setEmail("contact@cityhospital.com");
+                orgDTO.setType("Healthcare");
+                orgDTO.setDocuments("{\"license\":\"12345\",\"certifications\":[\"ISO9001\",\"NABH\"]}");
 
-            // Create a sample person linked to the organization
-            Person person = new Person();
-            person.setName("John Doe");
-            person.setDob("1985-06-15");
-            person.setGender("Male");
-            person.setBloodGroup("O+");
-            person.setMobile("9876543210");
-            person.setEmail("john.doe@example.com");
-            person.setOrganization(org);
-            personRepo.save(person);
+                org = orgDTO.toOrganization();
+                org = orgService.createOrganization(org);
+            }
 
-            System.out.println("Sample data saved successfully!");
+            // ----------------------
+            // Sample person DTO
+            // ----------------------
+            String email = "john.doe@example.com";
+            if (!personService.existsByEmail(email)) {
+                PersonDTO personDTO = new PersonDTO();
+                personDTO.setName("John Doe");
+                personDTO.setDob(new SimpleDateFormat("yyyy-MM-dd").parse("1985-06-15"));
+                personDTO.setGender("Male");
+                personDTO.setBloodGroup("O+");
+                personDTO.setMobile("9876543210");
+                personDTO.setEmail(email);
+                personDTO.setPassword("default123");
+                personDTO.setRole("USER");
+                personDTO.setOrganizationIds(Arrays.asList(org.getOrgId()));
+
+                Person person = personDTO.toPerson();
+                person.setOrganization(org);
+                person.setPassword(encoder.encode(personDTO.getPassword()));
+                person.setDocuments("{\"aadhar\":\"123412341234\",\"pan\":\"ABCDE1234F\"}");
+
+                personService.createPerson(person);
+
+                System.out.println("Sample person saved successfully using services!");
+            } else {
+                System.out.println("Sample person already exists. Skipping insert.");
+            }
         };
     }
 }

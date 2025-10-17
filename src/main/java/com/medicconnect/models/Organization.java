@@ -1,33 +1,60 @@
 package com.medicconnect.models;
 
 import jakarta.persistence.*;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
-@Table(name = "org")
+@Table(name = "organization")
 public class Organization {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @Column(name = "org_id", unique = true, nullable = false, updatable = false)
+    private String orgId;
+
+    private String organizationName;
     private String category;
     private String registrationNumber;
     private Integer yearOfEstablishment;
     private String ownershipType;
-    private String type;   // e.g., "Hospital" or "Clinic"
-    private String orgId;
+    private String type;
+    private String email;
+    private String mobile;
+    private String fullAddress;
+    private String country;
+    private String state;
+    private String city;
+    private String pincode;
+    private Date createdAt;
 
-    @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Person> persons;
 
-    // Getters and setters
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String documents;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.orgId == null) this.orgId = "ORG-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        if (this.createdAt == null) this.createdAt = new Date();
+    }
+
+    // -----------------------------
+    // Getters & Setters
+    // -----------------------------
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getOrgId() { return orgId; }
+    public void setOrgId(String orgId) { this.orgId = orgId; }
+
+    public String getOrganizationName() { return organizationName; }
+    public void setOrganizationName(String organizationName) { this.organizationName = organizationName; }
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
@@ -41,12 +68,36 @@ public class Organization {
     public String getOwnershipType() { return ownershipType; }
     public void setOwnershipType(String ownershipType) { this.ownershipType = ownershipType; }
 
-    public List<Person> getPersons() { return persons; }
-    public void setPersons(List<Person> persons) { this.persons = persons; }
-
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
 
-    public String getOrgId() { return orgId; }
-    public void setOrgId(String orgId) { this.orgId = orgId; } 
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getMobile() { return mobile; }
+    public void setMobile(String mobile) { this.mobile = mobile; }
+
+    public String getFullAddress() { return fullAddress; }
+    public void setFullAddress(String fullAddress) { this.fullAddress = fullAddress; }
+
+    public String getCountry() { return country; }
+    public void setCountry(String country) { this.country = country; }
+
+    public String getState() { return state; }
+    public void setState(String state) { this.state = state; }
+
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+
+    public String getPincode() { return pincode; }
+    public void setPincode(String pincode) { this.pincode = pincode; }
+
+    public List<Person> getPersons() { return persons; }
+    public void setPersons(List<Person> persons) { this.persons = persons; }
+
+    public String getDocuments() { return documents; }
+    public void setDocuments(String documents) { this.documents = documents; }
+
+    public Date getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
 }

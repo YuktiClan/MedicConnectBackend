@@ -2,6 +2,7 @@ package com.medicconnect.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -17,12 +18,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf().disable() // Disable CSRF for APIs
-            .authorizeHttpRequests()
-                .requestMatchers("/api/**").permitAll() // Allow all API endpoints
-                .anyRequest().authenticated() // Just in case, other requests still need auth
-            .and()
-            .httpBasic().disable(); // Disable login page / basic auth
+            // Disable CSRF for APIs
+            .csrf(csrf -> csrf.disable())
+            
+            // Configure authorization rules
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/**").permitAll()  // Allow all API endpoints
+                .anyRequest().authenticated()            // Authenticate other requests
+            )
+            
+            // Disable HTTP Basic login (or you can customize as needed)
+            .httpBasic(Customizer.withDefaults()); 
 
         return http.build();
     }

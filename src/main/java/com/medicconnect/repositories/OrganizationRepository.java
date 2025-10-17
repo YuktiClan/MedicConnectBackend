@@ -4,9 +4,10 @@ import com.medicconnect.models.Organization;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface OrganizationRepository extends JpaRepository<Organization, Long> {
-
-    // Optional custom finders (add as needed)
-    Organization findByOrgId(String orgId);
+    Optional<Organization> findByOrgId(String orgId);
+    Optional<Organization> findByOrganizationName(String organizationName);
 }

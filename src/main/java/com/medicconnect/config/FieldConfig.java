@@ -1,5 +1,7 @@
 package com.medicconnect.config;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.*;
 
 public final class FieldConfig {
@@ -47,9 +49,6 @@ public final class FieldConfig {
     public static final long F_ORG_EMAIL = 1L << 34;
     public static final long F_ORG_MOBILE = 1L << 35;
 
-    // ----------------------
-    // "Same as Organization" checkboxes
-    // ----------------------
     public static final long F_SAME_AS_ORG_EMAIL = 1L << 36;
     public static final long F_SAME_AS_ORG_MOBILE = 1L << 37;
 
@@ -65,8 +64,8 @@ public final class FieldConfig {
 
     public static final long FORM_HOSPITAL_REG_PART2 =
             F_NAME | F_DOB | F_GENDER | F_BLOOD_GROUP |
-            F_EMAIL_PERSONAL | F_SAME_AS_ORG_EMAIL |
-            F_MOBILE_PERSONAL | F_SAME_AS_ORG_MOBILE |
+            F_EMAIL_PERSONAL | 
+            F_MOBILE_PERSONAL | 
             F_CREATE_PASSWORD | F_CONFIRM_PASSWORD |
             F_ADDRESS_FULL_PERSONAL | F_ADDRESS_COUNTRY_PERSONAL | F_ADDRESS_STATE_PERSONAL |
             F_ADDRESS_CITY_PERSONAL | F_ADDRESS_PIN_PERSONAL |
@@ -87,74 +86,80 @@ public final class FieldConfig {
     }
 
     // ----------------------
-    // Field metadata
+    // Field metadata with validators
     // ----------------------
     public static Map<Long, Map<String, Object>> getFieldMetadata() {
         Map<Long, Map<String, Object>> map = new LinkedHashMap<>();
 
         // Organization fields
-        map.put(F_ORG_NAME, createBasicField("organizationName", "Name of the Organization", "text", "organization.name", true, "e.g., City Hospital"));
+        map.put(F_ORG_NAME, createBasicField("organizationName", "Name of the Organization", "text", "organization.name", true, "e.g., City Hospital", 3, 100, "^[\\w\\s]+$"));
         map.put(F_CATEGORY, createFieldWithOptions("category", "Category", "select", "organization.category", true, List.of("Hospital", "Clinic")));
-        map.put(F_REG_NO, createBasicField("registrationNumber", "Registration Number", "text", "organization.registration_number", false, null));
-        map.put(F_YEAR_EST, createBasicField("yearOfEstablishment", "Year of Establishment", "number", "organization.year_of_establishment", false, "YYYY"));
+        map.put(F_REG_NO, createBasicField("registrationNumber", "Registration Number", "text", "organization.registration_number", false, null, 5, 50, "^[A-Za-z0-9/-]+$"));
+        map.put(F_YEAR_EST, createBasicField("yearOfEstablishment", "Year of Establishment", "number", "organization.year_of_establishment", false, "YYYY", 1900, LocalDate.now().getYear(), null));
         map.put(F_OWNERSHIP_TYPE, createFieldWithOptions("ownershipType", "Ownership Type", "select", "organization.ownership_type", false, List.of("Private","Trust","Government","Corporation")));
 
         // Organization address
-        map.put(F_ADDRESS_FULL_ORG, createBasicField("fullAddress", "Full Address", "textarea", "organization.address.full_address", false, "Street, landmark, etc."));
-        map.put(F_ADDRESS_COUNTRY_ORG, createBasicField("country", "Country", "text", "organization.address.country", false, "Select country"));
-        map.put(F_ADDRESS_STATE_ORG, createBasicField("state", "State", "text", "organization.address.state", false, "Select state"));
-        map.put(F_ADDRESS_CITY_ORG, createBasicField("city", "City", "text", "organization.address.city", false, "Select city"));
-        map.put(F_ADDRESS_PIN_ORG, createBasicField("pincode", "Pin Code", "text", "organization.address.pincode", false, null));
+        map.put(F_ADDRESS_FULL_ORG, createBasicField("fullAddress", "Full Address", "textarea", "organization.address.full_address", false, "Street, landmark, etc.", 5, 200, null));
+        map.put(F_ADDRESS_COUNTRY_ORG, createBasicField("country", "Country", "location", "organization.address.country", false, "Select country", 2, 50, null));
+        map.put(F_ADDRESS_STATE_ORG, createBasicField("state", "State", "location", "organization.address.state", false, "Select state", 2, 50, null));
+        map.put(F_ADDRESS_CITY_ORG, createBasicField("city", "City", "location", "organization.address.city", false, "Select city", 2, 50, null));
+        map.put(F_ADDRESS_PIN_ORG, createBasicField("pincode", "Pin Code", "location", "organization.address.pincode", false, null, 4, 10, "^[0-9]+$"));
 
         // Organization contact
-        Map<String, Object> orgEmail = createBasicField("email", "Email ID", "email", "organization.email", true, "example@domain.com");
-        orgEmail.put("verifyButton", true);
-        map.put(F_ORG_EMAIL, orgEmail);
-
-        Map<String, Object> orgMobile = createBasicField("mobile", "Mobile", "phone", "organization.mobile", true, "Enter mobile");
-        orgMobile.put("verifyButton", true); // Added phone verification
-        map.put(F_ORG_MOBILE, orgMobile);
+        map.put(F_ORG_EMAIL, createEmailField("email", "Email ID", "organization.email", true, "example@domain.com"));
+        map.put(F_ORG_MOBILE, createPhoneField("mobile", "Mobile", "organization.mobile", true, "Enter mobile"));
 
         // Landline
-        map.put(F_LANDLINE_COUNTRY, createBasicField("landline.countryCode", "Landline Country Code", "text", "landline.country_code", false, "Country code"));
-        map.put(F_LANDLINE_AREA, createBasicField("landline.areaCode", "Landline Area Code", "text", "landline.area_code", false, null));
-        map.put(F_LANDLINE_LOCAL, createBasicField("landline.localNumber", "Landline Local Number", "text", "landline.local_number", false, null));
+        map.put(F_LANDLINE_COUNTRY, createBasicField("landline.countryCode", "Landline Country Code", "text", "landline.country_code", false, "Country code", 1, 5, "^[0-9]+$"));
+        map.put(F_LANDLINE_AREA, createBasicField("landline.areaCode", "Landline Area Code", "text", "landline.area_code", false, null, 1, 5, "^[0-9]+$"));
+        map.put(F_LANDLINE_LOCAL, createBasicField("landline.localNumber", "Landline Local Number", "text", "landline.local_number", false, null, 3, 15, "^[0-9]+$"));
 
         // Documents
-        map.put(F_DOCUMENTS_ORG, createBasicField("documents", "Documents", "file", "organization.documents", false, null));
+        map.put(F_DOCUMENTS_ORG, createBasicField("documents", "Documents", "file", "organization.documents", false, null, null, null, null));
 
         // Personal/Admin fields
-        map.put(F_NAME, createBasicField("name", "Name", "text", "personal.name", true, null));
-        map.put(F_DOB, createBasicField("dob", "Date Of Birth", "date", "personal.dob", false, "DD/MM/YYYY"));
+        map.put(F_NAME, createBasicField("name", "Name", "text", "personal.name", true, null, 3, 50, "^[a-zA-Z\\s]+$"));
+        map.put(F_DOB, createDobField("dob", "Date Of Birth", "date", "personal.dob", true));
         map.put(F_GENDER, createFieldWithOptions("gender", "Gender", "select", "personal.gender", false, List.of("Male","Female","Others", "Prefer not to say")));
         map.put(F_BLOOD_GROUP, createFieldWithOptions("bloodGroup", "Blood Group", "select", "personal.bloodGroup", false, List.of("A+","A-","B+","B-","AB+","AB-","O+","O-")));
 
-        // Personal contact
-        Map<String, Object> personalEmail = createBasicField("email", "Email ID", "email", "personal.email", true, "example@domain.com");
-        personalEmail.put("note", "Always use your personal email here");
-        personalEmail.put("verifyButton", true);
-        map.put(F_EMAIL_PERSONAL, personalEmail);
-        map.put(F_SAME_AS_ORG_EMAIL, createCheckbox("sameAsOrgEmail", "Same as Organization", "organization.email", "personal.email"));
+        // Personal contact with notes
+        map.put(F_EMAIL_PERSONAL, createEmailFieldWithNote(
+                "email",
+                "Email ID",
+                "personal.email",
+                true,
+                "Always use your personal email, e.g., example@domain.com",
+                "This email will be used for verification and login."
+        ));
 
-        Map<String, Object> personalMobile = createBasicField("mobile", "Mobile", "phone", "personal.mobile", true, "Enter mobile");
-        personalMobile.put("verifyButton", true); // Added phone verification
-        map.put(F_MOBILE_PERSONAL, personalMobile);
-        map.put(F_SAME_AS_ORG_MOBILE, createCheckbox("sameAsOrgMobile", "Same as Organization", "organization.mobile", "personal.mobile"));
+        // map.put(F_SAME_AS_ORG_EMAIL, createCheckbox("sameAsOrgEmail", "Same as Organization", "organization.email", "personal.email"));
+
+        map.put(F_MOBILE_PERSONAL, createPhoneFieldWithNote(
+                "mobile",
+                "Mobile",
+                "personal.mobile",
+                true,
+                "Always use your personal mobile number",
+                "Your mobile number will be used for OTP verification."
+        ));
+
+        // map.put(F_SAME_AS_ORG_MOBILE, createCheckbox("sameAsOrgMobile", "Same as Organization", "organization.mobile", "personal.mobile"));
 
         // Personal address
-        map.put(F_ADDRESS_FULL_PERSONAL, createBasicField("fullAddress", "Full Address", "textarea", "personal.address.full_address", false, "Street, landmark, etc."));
-        map.put(F_ADDRESS_COUNTRY_PERSONAL, createBasicField("country", "Country", "text", "personal.address.country", false, "Select country"));
-        map.put(F_ADDRESS_STATE_PERSONAL, createBasicField("state", "State", "text", "personal.address.state", false, "Select state"));
-        map.put(F_ADDRESS_CITY_PERSONAL, createBasicField("city", "City", "text", "personal.address.city", false, "Select city"));
-        map.put(F_ADDRESS_PIN_PERSONAL, createBasicField("pincode", "Pin Code", "text", "personal.address.pincode", false, null));
+        map.put(F_ADDRESS_FULL_PERSONAL, createBasicField("fullAddress", "Full Address", "textarea", "personal.address.full_address", false, "Street, landmark, etc.", 5, 200, null));
+        map.put(F_ADDRESS_COUNTRY_PERSONAL, createBasicField("country", "Country", "location", "personal.address.country", false, "Select country", 2, 50, null));
+        map.put(F_ADDRESS_STATE_PERSONAL, createBasicField("state", "State", "location", "personal.address.state", false, "Select state", 2, 50, null));
+        map.put(F_ADDRESS_CITY_PERSONAL, createBasicField("city", "City", "location", "personal.address.city", false, "Select city", 2, 50, null));
+        map.put(F_ADDRESS_PIN_PERSONAL, createBasicField("pincode", "Pin Code", "location", "personal.address.pincode", false, null, 4, 10, "^[0-9]+$"));
 
         // Personal documents
-        map.put(F_DOCUMENTS_PERSONAL, createBasicField("documents", "Documents", "file", "personal.documents", false, null));
+        map.put(F_DOCUMENTS_PERSONAL, createBasicField("documents", "Documents", "file", "personal.documents", false, null, null, null, null));
 
         // Password & agreement
-        map.put(F_CREATE_PASSWORD, createBasicField("password", "Create Password", "password", "auth.password", false, null));
-        map.put(F_CONFIRM_PASSWORD, createBasicField("confirmPassword", "Confirm Password", "password", "auth.confirmPassword", false, null));
-        map.put(F_AGREEMENT, createBasicField("agreement", "I hereby declare that all the information provided above is true and correct.", "checkbox", "auth.agreement", true, null));
+        map.put(F_CREATE_PASSWORD, createPasswordField("password", "Create Password", "password", "auth.password", true));
+        map.put(F_CONFIRM_PASSWORD, createPasswordField("confirmPassword", "Confirm Password", "password", "auth.confirmPassword", true));
+        map.put(F_AGREEMENT, createBasicField("agreement", "I hereby declare that all the information provided above is true and correct.", "checkbox", "auth.agreement", true, null, null, null, null));
 
         return map;
     }
@@ -162,31 +167,49 @@ public final class FieldConfig {
     // ----------------------
     // Helper methods
     // ----------------------
-    private static Map<String, Object> createBasicField(String key, String label, String type, String path, boolean required, String placeholder) {
+    private static Map<String, Object> createBasicField(String key, String label, String type, String path, boolean required,
+                                                        String placeholder, Integer minLength, Integer maxLength, String regex) {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("key", key);
         m.put("label", label);
         m.put("type", type);
-        m.put("path", path);
+        m.put("path", path != null ? path : key);
         m.put("required", required);
         if (placeholder != null) m.put("placeholder", placeholder);
-
-        // Calendar widget for DOB
-        if ("date".equals(type)) {
-            m.put("widget", "calendar");
-        }
-
-        // Email verification button
-        if ("email".equals(type)) {
-            m.put("verifyButton", true);
-        }
-
+        if (minLength != null) m.put("minLength", minLength);
+        if (maxLength != null) m.put("maxLength", maxLength);
+        if (regex != null) m.put("pattern", regex);
+        if ("date".equals(type)) m.put("widget", "calendar");
         return m;
     }
 
     private static Map<String, Object> createFieldWithOptions(String key, String label, String type, String path, boolean required, List<String> options) {
-        Map<String, Object> m = createBasicField(key, label, type, path, required, null);
-        m.put("options", options);
+        Map<String, Object> m = createBasicField(key, label, type, path, required, null, null, null, null);
+        m.put("options", options != null ? options : Collections.emptyList());
+        return m;
+    }
+
+    private static Map<String, Object> createEmailField(String key, String label, String path, boolean required, String placeholder) {
+        Map<String, Object> m = createBasicField(key, label, "email", path, required, placeholder, 5, 100, "^[\\w\\.-]+@[\\w\\.-]+\\.\\w{2,}$");
+        m.put("verifyButton", true);
+        return m;
+    }
+
+    private static Map<String, Object> createEmailFieldWithNote(String key, String label, String path, boolean required, String placeholder, String note) {
+        Map<String, Object> m = createEmailField(key, label, path, required, placeholder);
+        m.put("note", note);
+        return m;
+    }
+
+    private static Map<String, Object> createPhoneField(String key, String label, String path, boolean required, String placeholder) {
+        Map<String, Object> m = createBasicField(key, label, "phone", path, required, placeholder, 8, 15, "^[0-9]+$");
+        m.put("verifyButton", true);
+        return m;
+    }
+
+    private static Map<String, Object> createPhoneFieldWithNote(String key, String label, String path, boolean required, String placeholder, String note) {
+        Map<String, Object> m = createPhoneField(key, label, path, required, placeholder);
+        m.put("note", note);
         return m;
     }
 
@@ -198,5 +221,30 @@ public final class FieldConfig {
         m.put("sourceField", sourceField);
         m.put("targetField", targetField);
         return m;
+    }
+
+    private static Map<String, Object> createDobField(String key, String label, String type, String path, boolean required) {
+        Map<String, Object> m = createBasicField(key, label, type, path, required, null, null, null, null);
+        m.put("widget", "calendar");
+        m.put("validator", (Validator<LocalDate>) dob -> dob != null && Period.between(dob, LocalDate.now()).getYears() >= 18);
+        m.put("errorMessage", "User must be 18 years or older.");
+        return m;
+    }
+
+    private static Map<String, Object> createPasswordField(String key, String label, String type, String path, boolean required) {
+        Map<String, Object> m = createBasicField(key, label, type, path, required, "Enter strong password", 8, 50, null);
+        m.put("validator", (Validator<String>) pwd -> pwd != null && pwd.length() >= 8
+                && pwd.matches(".*[A-Z].*")
+                && pwd.matches(".*[a-z].*")
+                && pwd.matches(".*[0-9].*")
+                && pwd.matches(".*[!@#$%^&*()].*"));
+        m.put("strengthMeter", true);
+        m.put("errorMessage", "Password must be 8+ chars, include upper, lower, number, special char.");
+        return m;
+    }
+
+    @FunctionalInterface
+    public interface Validator<T> {
+        boolean validate(T value);
     }
 }

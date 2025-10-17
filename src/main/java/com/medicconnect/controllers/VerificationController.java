@@ -1,6 +1,7 @@
 package com.medicconnect.controllers;
 
 import com.medicconnect.services.VerificationService;
+import com.medicconnect.utils.ResponseUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,35 +17,35 @@ public class VerificationController {
         this.verificationService = verificationService;
     }
 
-    // Send OTP
     @PostMapping("/send")
-    public ResponseEntity<?> sendOtp(@RequestBody Map<String, String> payload) {
-        String target = payload.get("target"); // email or phone
-        String type = payload.get("type");     // "email" or "phone"
+    public ResponseEntity<Map<String, Object>> sendOtp(@RequestBody Map<String, String> payload) {
+        String target = payload.get("target");
+        String type = payload.get("type");
 
         if (target == null || type == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Missing target or type"));
+            return ResponseEntity.badRequest()
+                    .body(ResponseUtils.error("Missing target or type", null));
         }
 
         verificationService.sendOtp(target, type);
-        return ResponseEntity.ok(Map.of("message", "OTP sent successfully"));
+        return ResponseEntity.ok(ResponseUtils.success("OTP sent successfully", null));
     }
 
-    // Verify OTP
     @PostMapping("/verify")
-    public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> payload) {
+    public ResponseEntity<Map<String, Object>> verifyOtp(@RequestBody Map<String, String> payload) {
         String target = payload.get("target");
         String otp = payload.get("otp");
 
         if (target == null || otp == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Missing target or OTP"));
+            return ResponseEntity.badRequest()
+                    .body(ResponseUtils.error("Missing target or OTP", null));
         }
 
         boolean verified = verificationService.verifyOtp(target, otp);
         if (verified) {
-            return ResponseEntity.ok(Map.of("message", "Verified successfully"));
+            return ResponseEntity.ok(ResponseUtils.success("Verified successfully", null));
         } else {
-            return ResponseEntity.status(400).body(Map.of("error", "Invalid OTP"));
+            return ResponseEntity.badRequest().body(ResponseUtils.error("Invalid OTP", null));
         }
     }
 }

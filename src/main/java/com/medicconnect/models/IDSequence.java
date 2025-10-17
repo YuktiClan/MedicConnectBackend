@@ -2,10 +2,14 @@ package com.medicconnect.models;
 
 import jakarta.persistence.*;
 
+/**
+ * Entity representing the last generated ID for a given type and role.
+ * Used to maintain sequential IDs for organizations and users.
+ */
 @Entity
 @Table(
     name = "id_sequences",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"org_id", "role"})
+    uniqueConstraints = @UniqueConstraint(columnNames = {"type", "role"})
 )
 public class IdSequence {
 
@@ -13,23 +17,39 @@ public class IdSequence {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "org_id")
-    private String orgId;
+    /**
+     * Type of entity: "ORG" for organizations, "USER" for users.
+     */
+    @Column(nullable = false)
+    private String type;
 
-    @Column(name = "role")
+    /**
+     * Role of the user (e.g., ADMIN, DOCTOR, PATIENT). Null for organizations.
+     */
+    @Column
     private String role;
 
-    @Column(name = "last_value")
-    private Long lastValue;
+    /**
+     * Last generated sequential value for this type and role.
+     */
+    @Column(name = "`last_value`", nullable = false)
+    private Long lastValue = 0L;
 
-    // -----------------------------
-    // Getters and Setters
-    // -----------------------------
+    // Constructors
+    public IdSequence() {}
+
+    public IdSequence(String type, String role, Long lastValue) {
+        this.type = type;
+        this.role = role;
+        this.lastValue = lastValue;
+    }
+
+    // Getters & Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public String getOrgId() { return orgId; }
-    public void setOrgId(String orgId) { this.orgId = orgId; }
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }

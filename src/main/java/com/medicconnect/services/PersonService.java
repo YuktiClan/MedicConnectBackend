@@ -1,98 +1,121 @@
 package com.medicconnect.services;
 
+import com.medicconnect.dto.PersonDTO;
+import com.medicconnect.models.Organization;
 import com.medicconnect.models.Person;
+import com.medicconnect.repositories.OrganizationRepository;
 import com.medicconnect.repositories.PersonRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.medicconnect.utils.ValidationUtils;
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;       // for DOB
+import java.time.LocalDateTime;   // for registrationDate, associatedDate
+
+
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class PersonService {
 
-    @Autowired
-    private PersonRepository personRepository;
+    private final PersonRepository personRepository;
+    private final OrganizationRepository organizationRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    @Autowired
-    private IdGeneratorService idGeneratorService;
+    public PersonService(PersonRepository personRepository,
+                         OrganizationRepository organizationRepository,
+                         BCryptPasswordEncoder passwordEncoder) {
+        this.personRepository = personRepository;
+        this.organizationRepository = organizationRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    @Transactional
+    public Person createPersonFromMap(Map<String, Object> personalData,
+                                      Map<String, Object> authData,
+                                      Organization org) {
+        Person person = new Person();
 
-    // -----------------------------
-    // Create a new person/user
-    // -----------------------------
-    public Person createPerson(Person person) {
-        if (person.getEmail() != null && person.getPhoneNumber() != null) {
+        person.setName((String) personalData.get("name"));
+        person.setEmail((String) personalData.get("email"));
 
-            // Ensure role is set
-            if (person.getRole() == null) {
-                person.setRole("ADMIN");
-            }
+        String mobile = (String) personalData.get("mobile");
+        if (mobile != null) mobile = mobile.replaceAll("[^0-9+]", "");
+        person.setMobile(mobile);
 
-            // Generate unique userId safely
-            String userId = idGeneratorService.generateUserId(
-                    person.getRole(),
-                    person.getOrganization() != null ? person.getOrganization().getId().toString() : null
-            );
-            person.setUserId(userId);
+        person.setGender((String) personalData.get("gender"));
+        person.setBloodGroup((String) personalData.get("bloodGroup"));
 
-            // Encode password if provided
-            if (person.getPassword() != null) {
-                person.setPassword(passwordEncoder.encode(person.getPassword()));
-            }
+        Object dobObj = personalData.get("dob");
+        if (dobObj != null) {
+            person.setDob(LocalDate.parse(dobString.substring(0, 10)));
         }
+
+        Map<String, Object> address = (Map<String, Object>) personalData.get("address");
+        if (address != null) {
+            person.setFullAddress((String) address.get("full_address"));
+            person.setCountry((String) address.get("country"));
+            person.setState((String) address.get("state"));
+            person.setCity((String) address.get("city"));
+            person.setPincode((String) address.get("pincode"));
+        }
+
+        String rawPassword = (String) authData.get("password");
+        if (rawPassword == null || rawPassword.isBlank()) {
+            throw new IllegalArgumentException("Password is required");
+        }
+        person.setPassword(passwordEncoder.encode(rawPassword));
+
+        person.setRole("ADMIN");
+        person.setOrganization(org);
+        ValidationUtils.validateEmail(person.getEmail());
+
         return personRepository.save(person);
     }
 
-    // -----------------------------
-    // Get all persons
-    // -----------------------------
+    public Person createPerson(Person person) {
+        ValidationUtils.validateEmail(person.getEmail());
+        return personRepository.save(person);
+    }
+
+    public Person findById(Long id) {
+        return personRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Person not found"));
+    }
+
     public List<Person> getAllPersons() {
         return personRepository.findAll();
     }
 
-    // -----------------------------
-    // Find person by ID
-    // -----------------------------
-    public Optional<Person> findById(Long id) {
-        return personRepository.findById(id);
-    }
+    public Person updatePerson(Long id, PersonDTO personDTO) {
+        Person person = findById(id);
 
-    // -----------------------------
-    // Save/Update person
-    // -----------------------------
-    public Person savePerson(Person person) {
+        if (personDTO.getName() != null) person.setName(personDTO.getName());
+        if (personDTO.getEmail() != null) {
+            ValidationUtils.validateEmail(personDTO.getEmail());
+            person.setEmail(personDTO.getEmail());
+        }
+        if (personDTO.getMobile() != null) person.setMobile(personDTO.getMobile());
+        if (personDTO.getGender() != null) person.setGender(personDTO.getGender());
+        if (personDTO.getBloodGroup() != null) person.setBloodGroup(personDTO.getBloodGroup());
+
         return personRepository.save(person);
     }
 
-    // -----------------------------
-    // Delete person
-    // -----------------------------
-    public void deletePerson(Person person) {
-        personRepository.delete(person);
+    public void deleteById(Long id) {
+        personRepository.deleteById(id);
     }
 
-    // -----------------------------
-    // Find person by userId
-    // -----------------------------
-    public Optional<Person> findByUserId(String userId) {
-        return personRepository.findByUserId(userId);
+    public boolean existsByEmail(String email) {
+        return personRepository.existsByEmail(email);
     }
 
-    // -----------------------------
-    // Change password
-    // -----------------------------
-    public boolean changePassword(String userId, String newPassword) {
-        Optional<Person> optionalPerson = findByUserId(userId);
-        if (optionalPerson.isPresent()) {
-            Person person = optionalPerson.get();
-            person.setPassword(passwordEncoder.encode(newPassword));
-            personRepository.save(person);
-            return true;
-        }
-        return false;
+    public Person findByEmailOrUserId(String emailOrUserId) {
+        return personRepository.findByEmail(emailOrUserId)
+                .or(() -> personRepository.findByUserId(emailOrUserId))
+                .orElseThrow(() -> new RuntimeException("Person not found"));
     }
 }

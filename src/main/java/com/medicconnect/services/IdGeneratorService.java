@@ -1,32 +1,78 @@
 package com.medicconnect.services;
 
+import com.medicconnect.models.IdSequence;
+import com.medicconnect.repositories.IdSequenceRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Optional;
 
 @Service
 public class IdGeneratorService {
 
-    private AtomicLong orgCounter = new AtomicLong(1000);
-    private AtomicLong userCounter = new AtomicLong(10000);
+    private final IdSequenceRepository sequenceRepository;
 
-    // Generate Org ID: e.g., HOSP1234, CLIN5678
-    public String generateOrgId(String orgType) {
-        long id = orgCounter.incrementAndGet();
-        String prefix = orgType.equalsIgnoreCase("HOSPITAL") ? "HOSP" : "CLIN";
-        return prefix + id;
+    public IdGeneratorService(IdSequenceRepository sequenceRepository) {
+        this.sequenceRepository = sequenceRepository;
     }
 
-    // Generate User ID: e.g., ADMIN10001, DOC10002, PAT10003
-    public String generateUserId(String role, String orgId) {
-        long id = userCounter.incrementAndGet();
-        String prefix = role.toUpperCase().substring(0, 3); // ADMIN -> ADM, DOCTOR -> DOC, PATIENT -> PAT
-        return prefix + id;
+    // -----------------------------
+    // Generate Organization ID
+    // Example: ORG1001, ORG1002, ...
+    // -----------------------------
+    @Transactional
+    public synchronized String generateOrgId() {
+        final String type = "ORG";
+
+        Optional<IdSequence> seqOpt = sequenceRepository.findByTypeAndRole(type, null);
+
+        IdSequence seq = seqOpt.orElseGet(() -> {
+            IdSequence s = new IdSequence();
+            s.setType(type);
+            s.setRole(null);
+            s.setLastValue(0L);
+            return s;
+        });
+
+        long nextValue = seq.getLastValue() + 1;
+        seq.setLastValue(nextValue);
+        sequenceRepository.save(seq);
+
+        // Human-friendly ID
+        return "ORG" + (1000 + nextValue);
     }
 
-    // Generate Role ID for dashboard
-    public String generateRoleId(String role) {
-        long id = userCounter.incrementAndGet();
-        return role.toUpperCase().substring(0, 3) + id;
+    // -----------------------------
+    // Generate User/Person ID based on role
+    // Examples: ADM1001, DOC1001, PAT1001, USR1001
+    // -----------------------------
+    @Transactional
+    public synchronized String generateUserId(String role) {
+        final String type = "USER";
+        final String roleKey = (role != null) ? role.toUpperCase() : "USER";
+
+        Optional<IdSequence> seqOpt = sequenceRepository.findByTypeAndRole(type, roleKey);
+
+        IdSequence seq = seqOpt.orElseGet(() -> {
+            IdSequence s = new IdSequence();
+            s.setType(type);
+            s.setRole(roleKey);
+            s.setLastValue(0L);
+            return s;
+        });
+
+        long nextValue = seq.getLastValue() + 1;
+        seq.setLastValue(nextValue);
+        sequenceRepository.save(seq);
+
+        // Prefix based on role
+        String prefix = switch (roleKey) {
+            case "ADMIN" -> "ADM";
+            case "DOCTOR" -> "DOC";
+            case "PATIENT" -> "PAT";
+            default -> "USR";
+        };
+
+        return prefix + (1000 + nextValue);
     }
 }

@@ -5,7 +5,7 @@ import jakarta.mail.internet.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
@@ -18,7 +18,9 @@ public class EmailService {
     @Value("${spring.mail.password}")
     private String emailPass;
 
-    // ---------- SMTP Session ----------
+    // -----------------------------
+    // Get SMTP Session
+    // -----------------------------
     private Session getSession() {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -34,16 +36,16 @@ public class EmailService {
         });
     }
 
-    // ---------- Send email ----------
+    // -----------------------------
+    // Send Email
+    // -----------------------------
     public void sendEmail(String to, String subject, String htmlBody) throws MessagingException {
         MimeMessage message = new MimeMessage(getSession());
         try {
             message.setFrom(new InternetAddress(emailUser, "Medic-connect"));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            message.setFrom(new InternetAddress(emailUser)); // fallback
+        } catch (Exception e) {
+            message.setFrom(new InternetAddress(emailUser));
         }
-
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
         message.setSubject(subject);
         message.setSentDate(new Date());
@@ -53,45 +55,93 @@ public class EmailService {
         System.out.println("[EmailService] Email sent to " + to);
     }
 
-    // ---------- Generate OTP email body ----------
-    public String generateOtpEmailBody(String name, String otp) {
+    // -----------------------------
+    // Organization Registration Email
+    // -----------------------------
+    public String generateOrgRegistrationSuccessEmail(String orgName, String category, String registrationNumber, String orgId) {
+        String createdAt = new SimpleDateFormat("dd MMM yyyy, hh:mm a").format(new Date());
         return """
         <html>
         <body style="font-family:Arial,sans-serif; background:#f4f8fb; padding:20px;">
-            <div style="max-width:600px; margin:auto; background:#fff; padding:25px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
-                <h2 style="color:#0077ff;">Medic-connect OTP Verification</h2>
-                <p>Hello <strong>%s</strong>,</p>
-                <p>Your verification OTP is:</p>
-                <h1 style="text-align:center; color:#0077ff; letter-spacing:2px;">%s</h1>
-                <p style="text-align:center;"><strong>Valid for 10 minutes only.</strong></p>
-                <div style="margin-top:20px; font-size:12px; color:#666;">
-                    &copy; Medic-connect 2025. Do not share this OTP with anyone.
+            <div style="max-width:600px; margin:auto; background:#fff; padding:25px; border-radius:12px;">
+                <h2 style="color:#0077ff;">Organization Successfully Registered</h2>
+                <p>Dear Team,</p>
+                <p>Your organization has been successfully registered on Medic-connect.</p>
+                <div style="padding:12px; background:#e8f3ff; border-left:5px solid #0077ff; border-radius:6px;">
+                    <p><strong>Organization Name:</strong> %s</p>
+                    <p><strong>Category:</strong> %s</p>
+                    <p><strong>Registration Number:</strong> %s</p>
+                    <p><strong>Organization ID:</strong> %s</p>
+                    <p><strong>Registered On:</strong> %s</p>
                 </div>
+                <p>Please register yourself as the <strong>Admin</strong> to manage your organization on the Medic-connect Dashboard.</p>
+                <p>Welcome to Medic-connect!</p>
+                <hr>
+                <p style="font-size:12px; color:#555;">
+                    Need assistance? Contact <a href="mailto:support@medic-connect.example">support@medic-connect.example</a> or call +91-1234567890<br>
+                    &copy; 2025 Medic-connect. All rights reserved.
+                </p>
             </div>
         </body>
         </html>
-        """.formatted(name, otp);
+        """.formatted(orgName, category, registrationNumber, orgId, createdAt);
     }
 
-    // ---------- Generate Registration Success email body ----------
-    public String generateRegistrationEmailBody(String name, String type, String email) {
+    // -----------------------------
+    // Person/User Registration Email
+    // -----------------------------
+    public String generatePersonRegistrationSuccessEmail(String name, String role, String userId, String email, String orgName, Date createdAt) {
+        String registeredAt = new SimpleDateFormat("dd MMM yyyy, hh:mm a").format(createdAt);
         return """
         <html>
         <body style="font-family:Arial,sans-serif; background:#f4f8fb; padding:20px;">
-            <div style="max-width:600px; margin:auto; background:#fff; padding:25px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
-                <h2 style="color:#0077ff;">Registration Successful</h2>
+            <div style="max-width:600px; margin:auto; background:#fff; padding:25px; border-radius:12px;">
+                <h2 style="color:#0077ff;">%s Account Registration Successful</h2>
                 <p>Dear <strong>%s</strong>,</p>
-                <p>Your <strong>%s</strong> account has been successfully created on Medic-connect.</p>
-                <p><strong>Email:</strong> %s</p>
-                <div style="margin-top:20px; padding:12px; background:#e8f3ff; border-left:5px solid #0077ff; border-radius:6px;">
-                    You can now log in using your registered email. Keep your credentials secure.
+                <p>Your account under the organization <strong>%s</strong> has been successfully created.</p>
+                <div style="padding:12px; background:#e8f3ff; border-left:5px solid #0077ff; border-radius:6px;">
+                    <p><strong>User Role:</strong> %s</p>
+                    <p><strong>User ID:</strong> %s</p>
+                    <p><strong>Email:</strong> %s</p>
+                    <p><strong>Registered On:</strong> %s</p>
                 </div>
-                <div style="margin-top:20px; font-size:12px; color:#666;">
-                    &copy; Medic-connect 2025
-                </div>
+                <p>You can now log in using your <strong>User ID</strong> or registered email on the Medic-connect Dashboard.</p>
+                <p>Welcome aboard and thank you for joining Medic-connect!</p>
+                <hr>
+                <p style="font-size:12px; color:#555;">
+                    Need assistance? Contact <a href="mailto:support@medic-connect.example">support@medic-connect.example</a> or call +91-1234567890<br>
+                    &copy; 2025 Medic-connect. All rights reserved.
+                </p>
             </div>
         </body>
         </html>
-        """.formatted(name, type, email);
+        """.formatted(role, name, orgName, role, userId, email, registeredAt);
+    }
+
+    // -----------------------------
+    // Login OTP Email
+    // -----------------------------
+    public String generateLoginOtpEmail(String name, String otp) {
+        String issuedAt = new SimpleDateFormat("dd MMM yyyy, hh:mm a").format(new Date());
+        return """
+        <html>
+        <body style="font-family:Arial,sans-serif; background:#f4f8fb; padding:20px;">
+            <div style="max-width:600px; margin:auto; background:#fff; padding:25px; border-radius:12px;">
+                <h2 style="color:#0077ff;">Medic-connect OTP Verification</h2>
+                <p>Hello <strong>%s</strong>,</p>
+                <p>Your one-time password (OTP) for login is:</p>
+                <h3 style="color:#000;">%s</h3>
+                <p>This OTP is valid for 10 minutes only.</p>
+                <p>Issued on: %s</p>
+                <hr>
+                <p style="font-size:12px; color:#555;">
+                    Need assistance? Contact <a href="mailto:support@medic-connect.example">support@medic-connect.example</a> or call +91-1234567890<br>
+                    &copy; 2025 Medic-connect. All rights reserved.<br>
+                    Do not share this OTP with anyone.
+                </p>
+            </div>
+        </body>
+        </html>
+        """.formatted(name, otp, issuedAt);
     }
 }

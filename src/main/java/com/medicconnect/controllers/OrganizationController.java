@@ -1,8 +1,10 @@
 package com.medicconnect.controllers;
 
+import com.medicconnect.dto.OrganizationDTO;
 import com.medicconnect.models.Organization;
-import com.medicconnect.repositories.OrganizationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.medicconnect.services.EmailService;
+import com.medicconnect.services.OrganizationService;
+import com.medicconnect.utils.ResponseUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,49 +14,68 @@ import java.util.List;
 @RequestMapping("/api/organizations")
 public class OrganizationController {
 
-    @Autowired
-    private OrganizationRepository organizationRepository;
+    private final OrganizationService organizationService;
+    private final EmailService emailService;
 
-    // Get all organizations
+    public OrganizationController(OrganizationService organizationService, EmailService emailService) {
+        this.organizationService = organizationService;
+        this.emailService = emailService;
+    }
+
     @GetMapping
-    public List<Organization> getAllOrganizations() {
-        return organizationRepository.findAll();
+    public ResponseEntity<?> getAllOrganizations() {
+        List<Organization> orgs = organizationService.getAllOrganizations();
+        return ResponseEntity.ok(ResponseUtils.success("Organizations fetched successfully", orgs));
     }
 
-    // Get organization by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Organization> getOrganizationById(@PathVariable Long id) {
-        return organizationRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> getOrganizationById(@PathVariable Long id) {
+        try {
+            Organization org = organizationService.getOrganizationById(id);
+            return ResponseEntity.ok(ResponseUtils.success("Organization fetched successfully", org));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseUtils.error(e.getMessage(), null));
+        }
     }
 
-    // Create a new organization
     @PostMapping
-    public Organization createOrganization(@RequestBody Organization organization) {
-        return organizationRepository.save(organization);
+    public ResponseEntity<?> createOrganization(@RequestBody OrganizationDTO dto) {
+        try {
+            Organization org = organizationService.createOrganization(dto.toOrganization());
+
+            if (org.getEmail() != null) {
+                String htmlBody = emailService.generateOrgRegistrationSuccessEmail(
+                        org.getOrganizationName(), org.getCategory(), org.getRegistrationNumber(), org.getOrgId()
+                );
+                emailService.sendEmail(org.getEmail(),
+                        "Organization Registration Successful - " + org.getOrganizationName(),
+                        htmlBody
+                );
+            }
+
+            return ResponseEntity.ok(ResponseUtils.success("Organization registered successfully", org));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseUtils.error(e.getMessage(), null));
+        }
     }
 
-    // Update an organization
     @PutMapping("/{id}")
-    public ResponseEntity<Organization> updateOrganization(@PathVariable Long id, @RequestBody Organization updatedOrg) {
-        return organizationRepository.findById(id).map(org -> {
-            org.setName(updatedOrg.getName());
-            org.setCategory(updatedOrg.getCategory());
-            org.setRegistrationNumber(updatedOrg.getRegistrationNumber());
-            org.setYearOfEstablishment(updatedOrg.getYearOfEstablishment());
-            org.setOwnershipType(updatedOrg.getOwnershipType());
-            organizationRepository.save(org);
-            return ResponseEntity.ok(org);
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> updateOrganization(@PathVariable Long id, @RequestBody OrganizationDTO dto) {
+        try {
+            Organization updated = organizationService.updateOrganization(id, dto);
+            return ResponseEntity.ok(ResponseUtils.success("Organization updated successfully", updated));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseUtils.error(e.getMessage(), null));
+        }
     }
 
-    // Delete an organization
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrganization(@PathVariable Long id) {
-        return organizationRepository.findById(id).map(org -> {
-            organizationRepository.delete(org);
-            return ResponseEntity.ok().<Void>build();
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> deleteOrganization(@PathVariable Long id) {
+        try {
+            organizationService.deleteOrganization(id);
+            return ResponseEntity.ok(ResponseUtils.success("Organization deleted successfully", null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseUtils.error(e.getMessage(), null));
+        }
     }
 }

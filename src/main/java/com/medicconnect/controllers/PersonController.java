@@ -1,12 +1,14 @@
 package com.medicconnect.controllers;
 
+import com.medicconnect.dto.PersonDTO;
 import com.medicconnect.models.Person;
-import com.medicconnect.models.Organization;
-import com.medicconnect.repositories.OrganizationRepository;
+import com.medicconnect.services.EmailService;
 import com.medicconnect.services.PersonService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.medicconnect.utils.ResponseUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDate;       // for DOB
+import java.time.LocalDateTime;   // for registrationDate, associatedDate
 
 import java.util.List;
 
@@ -14,79 +16,70 @@ import java.util.List;
 @RequestMapping("/api/persons")
 public class PersonController {
 
-    @Autowired
-    private PersonService personService;
+    private final PersonService personService;
+    private final EmailService emailService;
 
-    @Autowired
-    private OrganizationRepository organizationRepository;
+    public PersonController(PersonService personService, EmailService emailService) {
+        this.personService = personService;
+        this.emailService = emailService;
+    }
 
-    // -----------------------------
-    // Get all persons
-    // -----------------------------
     @GetMapping
-    public List<Person> getAllPersons() {
-        return personService.getAllPersons();
+    public ResponseEntity<?> getAllPersons() {
+        List<Person> persons = personService.getAllPersons();
+        return ResponseEntity.ok(ResponseUtils.success("Persons fetched successfully", persons));
     }
 
-    // -----------------------------
-    // Get person by ID
-    // -----------------------------
     @GetMapping("/{id}")
-    public ResponseEntity<Person> getPersonById(@PathVariable Long id) {
-        return personService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    // -----------------------------
-    // Create a new person linked to an organization
-    // -----------------------------
-    @PostMapping
-    public ResponseEntity<Person> createPerson(@RequestBody Person person) {
-        if (person.getOrganization() != null && person.getOrganization().getId() != null) {
-            Organization org = organizationRepository.findById(person.getOrganization().getId()).orElse(null);
-            if (org == null) return ResponseEntity.badRequest().build();
-            person.setOrganization(org);
+    public ResponseEntity<?> getPersonById(@PathVariable Long id) {
+        try {
+            Person person = personService.findById(id);
+            return ResponseEntity.ok(ResponseUtils.success("Person fetched successfully", person));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseUtils.error(e.getMessage(), null));
         }
-
-        // Force role to ADMIN for org registration
-        person.setRole("ADMIN");
-
-        Person savedPerson = personService.createPerson(person);
-        return ResponseEntity.ok(savedPerson);
     }
 
-    // -----------------------------
-    // Update a person
-    // -----------------------------
-    @PutMapping("/{id}")
-    public ResponseEntity<Person> updatePerson(@PathVariable Long id, @RequestBody Person updatedPerson) {
-        return personService.findById(id).map(person -> {
-            person.setName(updatedPerson.getName());
-            person.setDob(updatedPerson.getDob());
-            person.setGender(updatedPerson.getGender());
-            person.setBloodGroup(updatedPerson.getBloodGroup());
-            person.setMobile(updatedPerson.getMobile());
-            person.setEmail(updatedPerson.getEmail());
+    @PostMapping
+    public ResponseEntity<?> createPerson(@RequestBody PersonDTO dto) {
+        try {
+            Person person = personService.createPerson(dto.toPerson());
 
-            if (updatedPerson.getOrganization() != null && updatedPerson.getOrganization().getId() != null) {
-                Organization org = organizationRepository.findById(updatedPerson.getOrganization().getId()).orElse(null);
-                person.setOrganization(org);
+            if (person.getEmail() != null) {
+                String orgName = person.getOrganization() != null ? person.getOrganization().getOrganizationName() : "N/A";
+                String htmlBody = emailService.generatePersonRegistrationSuccessEmail(
+                        person.getName(), person.getRole(), person.getUserId(),
+                        person.getEmail(), orgName, new Date()
+                );
+                emailService.sendEmail(person.getEmail(),
+                        "Medic-connect | Registration Successful",
+                        htmlBody
+                );
             }
 
-            personService.savePerson(person);
-            return ResponseEntity.ok(person);
-        }).orElse(ResponseEntity.notFound().build());
+            return ResponseEntity.ok(ResponseUtils.success("Person registered successfully", person));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseUtils.error(e.getMessage(), null));
+        }
     }
 
-    // -----------------------------
-    // Delete a person
-    // -----------------------------
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updatePerson(@PathVariable Long id, @RequestBody PersonDTO dto) {
+        try {
+            Person updated = personService.updatePerson(id, dto);
+            return ResponseEntity.ok(ResponseUtils.success("Person updated successfully", updated));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseUtils.error(e.getMessage(), null));
+        }
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePerson(@PathVariable Long id) {
-        return personService.findById(id).map(person -> {
-            personService.deletePerson(person);
-            return ResponseEntity.ok().<Void>build();
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> deletePerson(@PathVariable Long id) {
+        try {
+            personService.deleteById(id);
+            return ResponseEntity.ok(ResponseUtils.success("Person deleted successfully", null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseUtils.error(e.getMessage(), null));
+        }
     }
 }
