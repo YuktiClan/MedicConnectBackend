@@ -15,9 +15,7 @@ public class OrganizationDTO {
     private String ownershipType;
     private String email;
     private String mobile;
-    private String landlineCountryCode;
-    private String landlineAreaCode;
-    private String landlineLocalNumber;
+    private String landline;
     private String fullAddress;
     private String country;
     private String state;
@@ -52,14 +50,8 @@ public class OrganizationDTO {
     public String getMobile() { return mobile; }
     public void setMobile(String mobile) { this.mobile = mobile; }
 
-    public String getLandlineCountryCode() { return landlineCountryCode; }
-    public void setLandlineCountryCode(String landlineCountryCode) { this.landlineCountryCode = landlineCountryCode; }
-
-    public String getLandlineAreaCode() { return landlineAreaCode; }
-    public void setLandlineAreaCode(String landlineAreaCode) { this.landlineAreaCode = landlineAreaCode; }
-
-    public String getLandlineLocalNumber() { return landlineLocalNumber; }
-    public void setLandlineLocalNumber(String landlineLocalNumber) { this.landlineLocalNumber = landlineLocalNumber; }
+    public String getLandline() { return landline; }
+    public void setLandline(String landline) { this.landline = landline; }
 
     public String getFullAddress() { return fullAddress; }
     public void setFullAddress(String fullAddress) { this.fullAddress = fullAddress; }
@@ -96,9 +88,7 @@ public class OrganizationDTO {
         org.setOwnershipType(this.ownershipType);
         org.setEmail(this.email);
         org.setMobile(this.mobile);
-        org.setLandlineCountryCode(this.landlineCountryCode);
-        org.setLandlineAreaCode(this.landlineAreaCode);
-        org.setLandlineLocalNumber(this.landlineLocalNumber);
+        org.setLandline(this.landline);
         org.setFullAddress(this.fullAddress);
         org.setCountry(this.country);
         org.setState(this.state);

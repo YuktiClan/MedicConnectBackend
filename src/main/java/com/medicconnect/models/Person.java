@@ -3,6 +3,7 @@ package com.medicconnect.models;
 import com.medicconnect.permissions.Permission;
 import jakarta.persistence.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,9 +20,7 @@ public class Person {
     @Column(name = "user_id", unique = true, nullable = false, updatable = false)
     private String userId;
 
-    // -----------------------------
-    // Personal Information
-    // -----------------------------
+    // ----------------------------- Personal Information -----------------------------
     @Column(name = "personal_name", nullable = false)
     private String name;
 
@@ -34,27 +33,21 @@ public class Person {
     @Column(name = "personal_blood_group")
     private String bloodGroup;
 
-    // -----------------------------
-    // Personal Contact
-    // -----------------------------
+    // ----------------------------- Contact -----------------------------
     @Column(name = "personal_email", unique = true, nullable = false)
     private String email;
 
     @Column(name = "personal_mobile", unique = true, nullable = false)
     private String mobile;
 
-    // -----------------------------
-    // Auth
-    // -----------------------------
+    // ----------------------------- Auth -----------------------------
     @Column(name = "auth_password", nullable = false)
     private String password;
 
     @Column(name = "auth_agreement")
     private Boolean agreement;
 
-    // -----------------------------
-    // Address
-    // -----------------------------
+    // ----------------------------- Address -----------------------------
     @Column(name = "personal_address_full_address")
     private String fullAddress;
 
@@ -70,16 +63,12 @@ public class Person {
     @Column(name = "personal_address_pincode")
     private String pincode;
 
-    // -----------------------------
-    // Documents
-    // -----------------------------
+    // ----------------------------- Documents -----------------------------
     @Lob
     @Column(name = "personal_documents", columnDefinition = "TEXT")
     private String documents;
 
-    // -----------------------------
-    // Metadata
-    // -----------------------------
+    // ----------------------------- Metadata -----------------------------
     @Column(name = "registration_date")
     private LocalDateTime registrationDate;
 
@@ -90,27 +79,26 @@ public class Person {
     @Enumerated(EnumType.STRING)
     private List<Permission> permissions;
 
+    // ----------------------------- Organization -----------------------------
     @ManyToOne
-    @JoinColumn(name = "org_id")
+    @JoinColumn(name = "org_id", nullable = false)
     private Organization organization;
 
-    // -----------------------------
-    // Lifecycle
-    // -----------------------------
+    // ----------------------------- Lifecycle -----------------------------
     @PrePersist
     protected void onCreate() {
-        if (this.userId == null)
+        if (this.userId == null) {
             this.userId = "USR-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        if (this.registrationDate == null)
+        }
+        if (this.registrationDate == null) {
             this.registrationDate = LocalDateTime.now();
+        }
         if (this.password != null && !this.password.startsWith("$2a$")) {
             this.password = new BCryptPasswordEncoder().encode(this.password);
         }
     }
 
-    // -----------------------------
-    // Getters & Setters
-    // -----------------------------
+    // ----------------------------- Getters & Setters -----------------------------
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

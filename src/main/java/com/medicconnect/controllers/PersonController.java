@@ -1,8 +1,10 @@
 package com.medicconnect.controllers;
 
 import com.medicconnect.dto.PersonDTO;
+import com.medicconnect.models.Organization;
 import com.medicconnect.models.Person;
 import com.medicconnect.services.EmailService;
+import com.medicconnect.services.OrganizationService;
 import com.medicconnect.services.PersonService;
 import com.medicconnect.utils.ResponseUtils;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +18,14 @@ import java.util.List;
 public class PersonController {
 
     private final PersonService personService;
+    private final OrganizationService organizationService;
     private final EmailService emailService;
 
-    public PersonController(PersonService personService, EmailService emailService) {
+    public PersonController(PersonService personService,
+                            OrganizationService organizationService,
+                            EmailService emailService) {
         this.personService = personService;
+        this.organizationService = organizationService;
         this.emailService = emailService;
     }
 
@@ -42,25 +48,26 @@ public class PersonController {
     @PostMapping
     public ResponseEntity<?> createPerson(@RequestBody PersonDTO dto) {
         try {
-            Person person = personService.createPerson(dto.toPerson());
+            Organization org = organizationService.findByOrgId(dto.getOrgId());
+            Person savedPerson = personService.createPerson(dto);
 
-            if (person.getEmail() != null) {
-                String orgName = person.getOrganization() != null ? person.getOrganization().getOrganizationName() : "N/A";
+            if (savedPerson.getEmail() != null) {
                 String htmlBody = emailService.generatePersonRegistrationSuccessEmail(
-                        person.getName(),
-                        person.getUserId(),
-                        person.getEmail(),
-                        orgName,
+                        savedPerson.getName(),
+                        savedPerson.getUserId(),
+                        savedPerson.getEmail(),
+                        org.getOrganizationName(),
+                        org.getOrgId(),
+                        org.getCategory(),
                         LocalDateTime.now()
                 );
-                emailService.sendEmail(person.getEmail(),
-                        "Medic-connect | Registration Successful",
-                        htmlBody
-                );
+                emailService.sendEmail(savedPerson.getEmail(),
+                        "Medic-connect | Registration Successful", htmlBody);
             }
 
-            return ResponseEntity.ok(ResponseUtils.success("Person registered successfully", person));
+            return ResponseEntity.ok(ResponseUtils.success("Person registered successfully", savedPerson));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(ResponseUtils.error(e.getMessage(), null));
         }
     }
@@ -68,7 +75,9 @@ public class PersonController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updatePerson(@PathVariable Long id, @RequestBody PersonDTO dto) {
         try {
-            Person updated = personService.updatePerson(id, dto);
+            Organization org = null;
+            if (dto.getOrgId() != null) org = organizationService.findByOrgId(dto.getOrgId());
+            Person updated = personService.updatePerson(id, dto, org);
             return ResponseEntity.ok(ResponseUtils.success("Person updated successfully", updated));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ResponseUtils.error(e.getMessage(), null));

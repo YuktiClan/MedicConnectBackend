@@ -36,9 +36,7 @@ public final class FieldConfig {
     public static final long F_EMAIL_PERSONAL = 1L << 24;
     public static final long F_MOBILE_PERSONAL = 1L << 25;
 
-    public static final long F_LANDLINE_COUNTRY = 1L << 26;
-    public static final long F_LANDLINE_AREA = 1L << 27;
-    public static final long F_LANDLINE_LOCAL = 1L << 28;
+    public static final long F_LANDLINE = 1L << 26;
     public static final long F_DOCUMENTS_ORG = 1L << 29;
     public static final long F_DOCUMENTS_PERSONAL = 1L << 30;
 
@@ -59,8 +57,7 @@ public final class FieldConfig {
             F_ORG_NAME | F_CATEGORY | F_REG_NO | F_YEAR_EST | F_OWNERSHIP_TYPE |
             F_ADDRESS_FULL_ORG | F_ADDRESS_COUNTRY_ORG | F_ADDRESS_STATE_ORG |
             F_ADDRESS_CITY_ORG | F_ADDRESS_PIN_ORG |
-            F_ORG_EMAIL | F_ORG_MOBILE | F_LANDLINE_COUNTRY | F_LANDLINE_AREA |
-            F_LANDLINE_LOCAL | F_DOCUMENTS_ORG;
+            F_ORG_EMAIL | F_ORG_MOBILE | F_LANDLINE | F_DOCUMENTS_ORG;
 
     public static final long FORM_HOSPITAL_REG_PART2 =
             F_NAME | F_DOB | F_GENDER | F_BLOOD_GROUP |
@@ -100,9 +97,9 @@ public final class FieldConfig {
 
         // Organization address
         map.put(F_ADDRESS_FULL_ORG, createBasicField("fullAddress", "Full Address", "textarea", "organization.address.full_address", false, "Street, landmark, etc.", 5, 200, null));
-        map.put(F_ADDRESS_COUNTRY_ORG, createBasicField("country", "Country", "location", "organization.address.country", false, "Select country", 2, 50, null));
-        map.put(F_ADDRESS_STATE_ORG, createBasicField("state", "State", "location", "organization.address.state", false, "Select state", 2, 50, null));
-        map.put(F_ADDRESS_CITY_ORG, createBasicField("city", "City", "location", "organization.address.city", false, "Select city", 2, 50, null));
+        map.put(F_ADDRESS_COUNTRY_ORG, createBasicField("country", "Country", "location", "organization.address.country", false, "country", 2, 50, null));
+        map.put(F_ADDRESS_STATE_ORG, createBasicField("state", "State", "location", "organization.address.state", false, "state", 2, 50, null));
+        map.put(F_ADDRESS_CITY_ORG, createBasicField("city", "City", "location", "organization.address.city", false, "city", 2, 50, null));
         map.put(F_ADDRESS_PIN_ORG, createBasicField("pincode", "Pin Code", "location", "organization.address.pincode", false, null, 4, 10, "^[0-9]+$"));
 
         // Organization contact
@@ -110,10 +107,7 @@ public final class FieldConfig {
         map.put(F_ORG_MOBILE, createPhoneField("mobile", "Mobile", "organization.mobile", true, "Enter mobile"));
 
         // Landline
-        map.put(F_LANDLINE_COUNTRY, createBasicField("landline.countryCode", "Landline Country Code", "text", "landline.country_code", false, "Country code", 1, 5, "^[0-9]+$"));
-        map.put(F_LANDLINE_AREA, createBasicField("landline.areaCode", "Landline Area Code", "text", "landline.area_code", false, null, 1, 5, "^[0-9]+$"));
-        map.put(F_LANDLINE_LOCAL, createBasicField("landline.localNumber", "Landline Local Number", "text", "landline.local_number", false, null, 3, 15, "^[0-9]+$"));
-
+        map.put(F_LANDLINE, createBasicField("landline", "Landline", "text", "organization.landline", false, "Enter complete landline including country & area code", 5, 20, "^[0-9+-]+$"));
         // Documents
         map.put(F_DOCUMENTS_ORG, createBasicField("documents", "Documents", "file", "organization.documents", false, null, null, null, null));
 
@@ -148,9 +142,9 @@ public final class FieldConfig {
 
         // Personal address
         map.put(F_ADDRESS_FULL_PERSONAL, createBasicField("fullAddress", "Full Address", "textarea", "personal.address.full_address", false, "Street, landmark, etc.", 5, 200, null));
-        map.put(F_ADDRESS_COUNTRY_PERSONAL, createBasicField("country", "Country", "location", "personal.address.country", false, "Select country", 2, 50, null));
-        map.put(F_ADDRESS_STATE_PERSONAL, createBasicField("state", "State", "location", "personal.address.state", false, "Select state", 2, 50, null));
-        map.put(F_ADDRESS_CITY_PERSONAL, createBasicField("city", "City", "location", "personal.address.city", false, "Select city", 2, 50, null));
+        map.put(F_ADDRESS_COUNTRY_PERSONAL, createBasicField("country", "Country", "location", "personal.address.country", false, "country", 2, 50, null));
+        map.put(F_ADDRESS_STATE_PERSONAL, createBasicField("state", "State", "location", "personal.address.state", false, "state", 2, 50, null));
+        map.put(F_ADDRESS_CITY_PERSONAL, createBasicField("city", "City", "location", "personal.address.city", false, "city", 2, 50, null));
         map.put(F_ADDRESS_PIN_PERSONAL, createBasicField("pincode", "Pin Code", "location", "personal.address.pincode", false, null, 4, 10, "^[0-9]+$"));
 
         // Personal documents

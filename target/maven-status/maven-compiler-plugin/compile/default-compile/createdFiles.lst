@@ -9,8 +9,10 @@ com\medicconnect\utils\ResponseUtils.class
 com\medicconnect\config\FieldConfig$Validator.class
 com\medicconnect\services\EmailService$1.class
 com\medicconnect\config\FieldConfig.class
+com\medicconnect\models\Document.class
 com\medicconnect\services\IdGeneratorService.class
 com\medicconnect\models\IdSequence.class
+com\medicconnect\repositories\DocumentRepository.class
 com\medicconnect\repositories\PersonRepository.class
 com\medicconnect\App.class
 com\medicconnect\controllers\OrganizationController.class
@@ -31,6 +33,7 @@ com\medicconnect\config\SecurityConfig.class
 com\medicconnect\controllers\FormController.class
 com\medicconnect\dto\OrganizationDTO.class
 com\medicconnect\services\VerificationService.class
+com\medicconnect\services\DocumentService.class
 com\medicconnect\controllers\RegistrationController.class
 com\medicconnect\controllers\AuthController.class
 com\medicconnect\exceptions\ResourceNotFoundException.class

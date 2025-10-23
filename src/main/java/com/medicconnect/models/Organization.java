@@ -43,14 +43,8 @@ public class Organization {
     @Column(name = "organization_mobile")
     private String mobile;
 
-    @Column(name = "organization_landline_country_code")
-    private String landlineCountryCode;
-
-    @Column(name = "organization_landline_area_code")
-    private String landlineAreaCode;
-
-    @Column(name = "organization_landline_local_number")
-    private String landlineLocalNumber;
+    @Column(name = "organization_landline")
+    private String landline;
 
     // -----------------------------
     // Organization Address
@@ -128,14 +122,8 @@ public class Organization {
     public String getMobile() { return mobile; }
     public void setMobile(String mobile) { this.mobile = mobile; }
 
-    public String getLandlineCountryCode() { return landlineCountryCode; }
-    public void setLandlineCountryCode(String landlineCountryCode) { this.landlineCountryCode = landlineCountryCode; }
-
-    public String getLandlineAreaCode() { return landlineAreaCode; }
-    public void setLandlineAreaCode(String landlineAreaCode) { this.landlineAreaCode = landlineAreaCode; }
-
-    public String getLandlineLocalNumber() { return landlineLocalNumber; }
-    public void setLandlineLocalNumber(String landlineLocalNumber) { this.landlineLocalNumber = landlineLocalNumber; }
+    public String getLandline() { return landline; }
+    public void setLandline(String landline) { this.landline = landline; }
 
     public String getFullAddress() { return fullAddress; }
     public void setFullAddress(String fullAddress) { this.fullAddress = fullAddress; }

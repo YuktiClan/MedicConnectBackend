@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-
 public class OrganizationService {
 
     private final OrganizationRepository organizationRepository;
@@ -23,27 +22,31 @@ public class OrganizationService {
         this.organizationRepository = organizationRepository;
         this.idGeneratorService = idGeneratorService;
     }
-    
-public Optional<Organization> findByOrganizationNameOptional(String name) {
-    return organizationRepository.findByOrganizationName(name);
-}
 
+    public Optional<Organization> findByOrganizationNameOptional(String name) {
+        return organizationRepository.findByOrganizationName(name);
+    }
+
+    public Organization findByOrgId(String orgId) {
+        return organizationRepository.findByOrgId(orgId)
+                .orElseThrow(() -> new RuntimeException("Organization not found with ID: " + orgId));
+    }
 
     @Transactional
     public Organization createOrganizationFromMap(Map<String, Object> orgData) {
         Organization org = new Organization();
 
-        org.setOrganizationName((String) orgData.get("name"));
+        org.setOrganizationName((String) orgData.get("organizationName"));
         org.setCategory((String) orgData.get("category"));
-        org.setRegistrationNumber((String) orgData.get("registration_number"));
-        org.setYearOfEstablishment(orgData.get("year_of_establishment") != null
-                ? Integer.parseInt(orgData.get("year_of_establishment").toString())
+        org.setRegistrationNumber((String) orgData.get("registrationNumber"));
+        org.setYearOfEstablishment(orgData.get("yearOfEstablishment") != null
+                ? Integer.parseInt(orgData.get("yearOfEstablishment").toString())
                 : null);
-        org.setOwnershipType((String) orgData.get("ownership_type"));
+        org.setOwnershipType((String) orgData.get("ownershipType"));
 
         Map<String, Object> address = (Map<String, Object>) orgData.get("address");
         if (address != null) {
-            org.setFullAddress((String) address.get("full_address"));
+            org.setFullAddress((String) address.get("fullAddress"));
             org.setCountry((String) address.get("country"));
             org.setState((String) address.get("state"));
             org.setCity((String) address.get("city"));
@@ -77,22 +80,15 @@ public Optional<Organization> findByOrganizationNameOptional(String name) {
 
     public Organization updateOrganization(Long id, OrganizationDTO orgDTO) {
         Organization org = getOrganizationById(id);
-
         if (orgDTO.getOrganizationName() != null) org.setOrganizationName(orgDTO.getOrganizationName());
         if (orgDTO.getCategory() != null) org.setCategory(orgDTO.getCategory());
         if (orgDTO.getRegistrationNumber() != null) org.setRegistrationNumber(orgDTO.getRegistrationNumber());
         if (orgDTO.getOwnershipType() != null) org.setOwnershipType(orgDTO.getOwnershipType());
         if (orgDTO.getYearOfEstablishment() != null) org.setYearOfEstablishment(orgDTO.getYearOfEstablishment());
-
         return organizationRepository.save(org);
     }
 
     public void deleteOrganization(Long id) {
         organizationRepository.deleteById(id);
-    }
-
-    public Organization findByOrganizationName(String name) {
-        return organizationRepository.findByOrganizationName(name)
-                .orElseThrow(() -> new RuntimeException("Organization not found"));
     }
 }

@@ -2,7 +2,6 @@ package com.medicconnect.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -23,29 +22,22 @@ public class SecurityConfig {
     // Security Filter Chain
     // -----------------------------
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             // Disable CSRF for stateless APIs
             .csrf(csrf -> csrf.disable())
 
-            // Stateless (no session cookies)
+            // Stateless session management
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            // Authorization rules
-            .authorizeHttpRequests(auth -> auth
-                // Allow public routes
-                .requestMatchers(
-                    "/api/auth/**",       // login, register, verify email, etc.
-                    "/api/register/**",   // registration endpoints
-                    "/api/public/**"      // any open/public API
-                ).permitAll()
-                // Protect all other endpoints
-                .anyRequest().authenticated()
-            )
+            // Make all endpoints public
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
 
-            // Disable form login & basic auth
-            .httpBasic(Customizer.withDefaults())
-            .formLogin(form -> form.disable());
+            // Disable default form login
+            .formLogin(form -> form.disable())
+
+            // Disable HTTP Basic Auth
+            .httpBasic(httpBasic -> httpBasic.disable());
 
         return http.build();
     }

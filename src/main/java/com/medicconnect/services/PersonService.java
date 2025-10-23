@@ -9,13 +9,8 @@ import com.medicconnect.utils.ValidationUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.time.LocalDate;       // for DOB
-import java.time.LocalDateTime;   // for registrationDate, associatedDate
-
-
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -34,49 +29,15 @@ public class PersonService {
     }
 
     @Transactional
-    public Person createPersonFromMap(Map<String, Object> personalData,
-                                      Map<String, Object> authData,
-                                      Organization org) {
-        Person person = new Person();
+    public Person createPerson(PersonDTO dto) {
+        Organization org = organizationRepository.findByOrgId(dto.getOrgId())
+                .orElseThrow(() -> new RuntimeException("Organization not found"));
+        Person person = dto.toPerson(org);
 
-        person.setName((String) personalData.get("name"));
-        person.setEmail((String) personalData.get("email"));
-
-        String mobile = (String) personalData.get("mobile");
-        if (mobile != null) mobile = mobile.replaceAll("[^0-9+]", "");
-        person.setMobile(mobile);
-
-        person.setGender((String) personalData.get("gender"));
-        person.setBloodGroup((String) personalData.get("bloodGroup"));
-
-        Object dobObj = personalData.get("dob");
-        if (dobObj != null) {
-            String dobString = dobObj.toString().substring(0, 10); // "yyyy-MM-dd"
-            person.setDob(LocalDate.parse(dobString));
+        if (person.getPassword() != null && !person.getPassword().startsWith("$2a$")) {
+            person.setPassword(passwordEncoder.encode(person.getPassword()));
         }
 
-        Map<String, Object> address = (Map<String, Object>) personalData.get("address");
-        if (address != null) {
-            person.setFullAddress((String) address.get("full_address"));
-            person.setCountry((String) address.get("country"));
-            person.setState((String) address.get("state"));
-            person.setCity((String) address.get("city"));
-            person.setPincode((String) address.get("pincode"));
-        }
-
-        String rawPassword = (String) authData.get("password");
-        if (rawPassword == null || rawPassword.isBlank()) {
-            throw new IllegalArgumentException("Password is required");
-        }
-        person.setPassword(passwordEncoder.encode(rawPassword));
-
-        person.setOrganization(org);
-        ValidationUtils.validateEmail(person.getEmail());
-
-        return personRepository.save(person);
-    }
-
-    public Person createPerson(Person person) {
         ValidationUtils.validateEmail(person.getEmail());
         return personRepository.save(person);
     }
@@ -90,32 +51,26 @@ public class PersonService {
         return personRepository.findAll();
     }
 
-    public Person updatePerson(Long id, PersonDTO personDTO) {
-        Person person = findById(id);
-
-        if (personDTO.getName() != null) person.setName(personDTO.getName());
-        if (personDTO.getEmail() != null) {
-            ValidationUtils.validateEmail(personDTO.getEmail());
-            person.setEmail(personDTO.getEmail());
-        }
-        if (personDTO.getMobile() != null) person.setMobile(personDTO.getMobile());
-        if (personDTO.getGender() != null) person.setGender(personDTO.getGender());
-        if (personDTO.getBloodGroup() != null) person.setBloodGroup(personDTO.getBloodGroup());
-
-        return personRepository.save(person);
+    public boolean existsByEmail(String email) {
+        return personRepository.existsByEmail(email);
     }
 
     public void deleteById(Long id) {
         personRepository.deleteById(id);
     }
 
-    public boolean existsByEmail(String email) {
-        return personRepository.existsByEmail(email);
+    public Person updatePerson(Long id, PersonDTO dto, Organization org) {
+        Person person = findById(id);
+        if (dto.getName() != null) person.setName(dto.getName());
+        if (dto.getEmail() != null) person.setEmail(dto.getEmail());
+        if (dto.getMobile() != null) person.setMobile(dto.getMobile());
+        if (dto.getGender() != null) person.setGender(dto.getGender());
+        if (dto.getBloodGroup() != null) person.setBloodGroup(dto.getBloodGroup());
+        if (org != null) person.setOrganization(org);
+        return personRepository.save(person);
     }
 
-    public Person findByEmailOrUserId(String emailOrUserId) {
-        return personRepository.findByEmail(emailOrUserId)
-                .or(() -> personRepository.findByUserId(emailOrUserId))
-                .orElseThrow(() -> new RuntimeException("Person not found"));
+    public Optional<Person> findByEmailOrUserId(String emailOrUserId) {
+        return personRepository.findByEmailOrUserId(emailOrUserId);
     }
 }

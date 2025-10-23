@@ -90,19 +90,30 @@ public class EmailService {
     // -----------------------------
     // Person/User Registration Email
     // -----------------------------
-    public String generatePersonRegistrationSuccessEmail(String name, String userId, String email, String orgName, LocalDateTime createdAt) {
+    public String generatePersonRegistrationSuccessEmail(
+            String name,
+            String userId,
+            String email,
+            String orgName,
+            String orgId,
+            String category,
+            LocalDateTime createdAt
+    ) {
         String registeredAt = createdAt.format(DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a"));
         return """
         <html>
         <body style="font-family:Arial,sans-serif; background:#f4f8fb; padding:20px;">
             <div style="max-width:600px; margin:auto; background:#fff; padding:25px; border-radius:12px;">
-                <h2 style="color:#0077ff;">Account Registration Successful</h2>
+                <h2 style="color:#0077ff;">Administrator Registration Successful</h2>
                 <p>Dear <strong>%s</strong>,</p>
                 <p>Your account under the organization <strong>%s</strong> has been successfully created.</p>
                 <div style="padding:12px; background:#e8f3ff; border-left:5px solid #0077ff; border-radius:6px;">
                     <p><strong>User ID:</strong> %s</p>
                     <p><strong>Email:</strong> %s</p>
                     <p><strong>Registered On:</strong> %s</p>
+                    <p><strong>Organization ID:</strong> %s</p>
+                    <p><strong>Organization Name:</strong> %s</p>
+                    <p><strong>Category:</strong> %s</p>
                 </div>
                 <p>You can now log in using your <strong>User ID</strong> or registered email on the Medic-connect Dashboard.</p>
                 <p>Welcome aboard and thank you for joining Medic-connect!</p>
@@ -114,7 +125,7 @@ public class EmailService {
             </div>
         </body>
         </html>
-        """.formatted(name, orgName, userId, email, registeredAt);
+        """.formatted(name, orgName, userId, email, registeredAt, orgId, orgName, category);
     }
 
     // -----------------------------
@@ -126,7 +137,7 @@ public class EmailService {
         <html>
         <body style="font-family:Arial,sans-serif; background:#f4f8fb; padding:20px;">
             <div style="max-width:600px; margin:auto; background:#fff; padding:25px; border-radius:12px;">
-                <h2 style="color:#0077ff;">Medic-connect OTP Verification</h2>
+                <h2 style="color:#0077ff;">Medic-connect Login OTP</h2>
                 <p>Hello <strong>%s</strong>,</p>
                 <p>Your one-time password (OTP) for login is:</p>
                 <h3 style="color:#000;">%s</h3>

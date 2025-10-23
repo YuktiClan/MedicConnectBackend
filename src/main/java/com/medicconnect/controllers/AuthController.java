@@ -34,17 +34,20 @@ public class AuthController {
         String identifier = request.get("identifier");
         String password = request.get("password");
 
-        if (identifier == null || identifier.isEmpty() || password == null || password.isEmpty()) {
+        if (identifier == null || identifier.isBlank() || password == null || password.isBlank()) {
             return ResponseEntity.badRequest()
                     .body(ResponseUtils.error("Identifier and password are required", null));
         }
 
         try {
-            Person person = personService.findByEmailOrUserId(identifier);
+            Person person = personService.findByEmailOrUserId(identifier)
+                    .orElseThrow(() -> new RuntimeException(
+                            "User not found with email or ID: " + identifier
+                    ));
 
             if (!passwordEncoder.matches(password, person.getPassword())) {
                 return ResponseEntity.badRequest()
-                        .body(ResponseUtils.error("Invalid password", null));
+                        .body(ResponseUtils.error("Invalid credentials", null));
             }
 
             Map<String, Object> userInfo = new HashMap<>();
@@ -58,7 +61,7 @@ public class AuthController {
 
         } catch (Exception e) {
             return ResponseEntity.badRequest()
-                    .body(ResponseUtils.error("Invalid credentials or user not found", null));
+                    .body(ResponseUtils.error(e.getMessage(), null));
         }
     }
 
@@ -66,17 +69,27 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> sendOtp(@RequestBody Map<String, String> request) {
         String identifier = request.get("identifier");
 
-        if (identifier == null || identifier.isEmpty()) {
+        if (identifier == null || identifier.isBlank()) {
             return ResponseEntity.badRequest()
                     .body(ResponseUtils.error("Identifier is required", null));
         }
 
         try {
-            Person person = personService.findByEmailOrUserId(identifier);
+            Person person = personService.findByEmailOrUserId(identifier)
+                    .orElseThrow(() -> new RuntimeException(
+                            "User not found with email or ID: " + identifier
+                    ));
+
             verificationService.sendOtp(person.getEmail(), "email");
-            return ResponseEntity.ok(ResponseUtils.success("OTP sent successfully", Map.of("email", person.getEmail())));
+
+            return ResponseEntity.ok(ResponseUtils.success(
+                    "OTP sent successfully",
+                    Map.of("email", person.getEmail())
+            ));
+
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ResponseUtils.error("Failed to send OTP", null));
+            return ResponseEntity.badRequest()
+                    .body(ResponseUtils.error(e.getMessage(), null));
         }
     }
 
@@ -85,17 +98,22 @@ public class AuthController {
         String identifier = request.get("identifier");
         String otp = request.get("otp");
 
-        if (identifier == null || otp == null) {
+        if (identifier == null || identifier.isBlank() || otp == null || otp.isBlank()) {
             return ResponseEntity.badRequest()
                     .body(ResponseUtils.error("Identifier and OTP are required", null));
         }
 
         try {
-            Person person = personService.findByEmailOrUserId(identifier);
+            Person person = personService.findByEmailOrUserId(identifier)
+                    .orElseThrow(() -> new RuntimeException(
+                            "User not found with email or ID: " + identifier
+                    ));
+
             boolean verified = verificationService.verifyOtp(person.getEmail(), otp);
 
             if (!verified) {
-                return ResponseEntity.badRequest().body(ResponseUtils.error("Invalid OTP", null));
+                return ResponseEntity.badRequest()
+                        .body(ResponseUtils.error("Invalid OTP", null));
             }
 
             Map<String, Object> userInfo = Map.of(
@@ -106,7 +124,8 @@ public class AuthController {
 
             return ResponseEntity.ok(ResponseUtils.success("OTP verified successfully", userInfo));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ResponseUtils.error("Verification failed", null));
+            return ResponseEntity.badRequest()
+                    .body(ResponseUtils.error(e.getMessage(), null));
         }
     }
 }

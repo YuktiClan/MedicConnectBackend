@@ -1,11 +1,12 @@
 package com.medicconnect.dto;
 
+import com.medicconnect.models.Organization;
 import com.medicconnect.models.Person;
+import com.medicconnect.permissions.Permission;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import com.medicconnect.models.Organization;
-import com.medicconnect.permissions.Permission;
 
 public class PersonDTO {
 
@@ -27,7 +28,7 @@ public class PersonDTO {
     private LocalDateTime registrationDate;
     private LocalDateTime associatedDate;
     private List<Permission> permissions;
-    private Organization organization;
+    private String orgId;
 
     // ---------------- Getters & Setters ----------------
     public String getUserId() { return userId; }
@@ -84,11 +85,11 @@ public class PersonDTO {
     public List<Permission> getPermissions() { return permissions; }
     public void setPermissions(List<Permission> permissions) { this.permissions = permissions; }
 
-    public Organization getOrganization() { return organization; }
-    public void setOrganization(Organization organization) { this.organization = organization; }
+    public String getOrgId() { return orgId; }
+    public void setOrgId(String orgId) { this.orgId = orgId; }
 
-    // ---------------- Convert DTO to Entity ----------------
-    public Person toPerson() {
+    // ---------------- Convert DTO → Entity ----------------
+    public Person toPerson(Organization org) {
         Person person = new Person();
         person.setUserId(this.userId);
         person.setName(this.name);
@@ -108,7 +109,30 @@ public class PersonDTO {
         person.setRegistrationDate(this.registrationDate);
         person.setAssociatedDate(this.associatedDate);
         person.setPermissions(this.permissions);
-        person.setOrganization(this.organization);
+        person.setOrganization(org);
         return person;
+    }
+
+    // ---------------- Convert Entity → DTO ----------------
+    public static PersonDTO fromPerson(Person person) {
+        PersonDTO dto = new PersonDTO();
+        dto.setUserId(person.getUserId());
+        dto.setName(person.getName());
+        dto.setDob(person.getDob());
+        dto.setGender(person.getGender());
+        dto.setBloodGroup(person.getBloodGroup());
+        dto.setEmail(person.getEmail());
+        dto.setMobile(person.getMobile());
+        dto.setFullAddress(person.getFullAddress());
+        dto.setCountry(person.getCountry());
+        dto.setState(person.getState());
+        dto.setCity(person.getCity());
+        dto.setPincode(person.getPincode());
+        dto.setDocuments(person.getDocuments());
+        dto.setRegistrationDate(person.getRegistrationDate());
+        dto.setAssociatedDate(person.getAssociatedDate());
+        dto.setPermissions(person.getPermissions());
+        dto.setOrgId(person.getOrganization() != null ? person.getOrganization().getOrgId() : null);
+        return dto;
     }
 }

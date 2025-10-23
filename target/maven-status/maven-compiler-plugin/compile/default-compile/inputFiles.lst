@@ -1,3 +1,4 @@
+D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\models\Document.java
 D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\models\Person.java
 D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\services\VerificationService.java
 D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\exceptions\ResourceNotFoundException.java
@@ -5,6 +6,8 @@ D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\services\Fiel
 D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\exceptions\GlobalExceptionHandler.java
 D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\services\EmailService.java
 D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\permissions\Permission.java
+D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\repositories\DocumentRepository.java
+D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\services\DocumentService.java
 D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\config\FieldConfig.java
 D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\DTO\OtpRequest.java
 D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\DTO\OrganizationDTO.java
