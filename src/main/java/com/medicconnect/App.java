@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Optional;
 
 @SpringBootApplication
@@ -27,13 +26,14 @@ public class App {
     @Bean
     CommandLineRunner run(OrganizationService orgService, PersonService personService, BCryptPasswordEncoder encoder) {
         return args -> {
+
             // ----------------------
             // Sample organization
             // ----------------------
             String orgName = "City Hospital";
             Optional<Organization> optionalOrg = orgService.findByOrganizationNameOptional(orgName);
-
             Organization org;
+
             if (optionalOrg.isPresent()) {
                 org = optionalOrg.get();
                 System.out.println("Organization already exists: " + orgName);
@@ -46,7 +46,6 @@ public class App {
                 orgDTO.setOwnershipType("Private");
                 orgDTO.setMobile("01122334455");
                 orgDTO.setEmail("contact@cityhospital.com");
-                orgDTO.setType("Healthcare");
                 orgDTO.setDocuments("{\"license\":\"12345\",\"certifications\":[\"ISO9001\",\"NABH\"]}");
 
                 org = orgDTO.toOrganization();
@@ -62,16 +61,16 @@ public class App {
             if (!personService.existsByEmail(email)) {
                 PersonDTO personDTO = new PersonDTO();
                 personDTO.setName("John Doe");
-                personDTO.setDob(LocalDate.parse("1985-06-15")); // yyyy-MM-dd format
+                personDTO.setDob(LocalDate.parse("1985-06-15"));
                 personDTO.setGender("Male");
                 personDTO.setBloodGroup("O+");
                 personDTO.setMobile("9876543210");
                 personDTO.setEmail(email);
                 personDTO.setPassword("default123");
-                personDTO.setRole("USER");
-                personDTO.setOrganizationIds(Arrays.asList(org.getOrgId()));
 
+                // Convert DTO to Entity and ensure all required fields are set
                 Person person = personDTO.toPerson();
+                person.setEmail(personDTO.getEmail()); // explicitly ensure email is set
                 person.setOrganization(org);
                 person.setPassword(encoder.encode(personDTO.getPassword()));
                 person.setDocuments("{\"aadhar\":\"123412341234\",\"pan\":\"ABCDE1234F\"}");

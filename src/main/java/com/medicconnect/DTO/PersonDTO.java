@@ -1,13 +1,15 @@
 package com.medicconnect.dto;
 
 import com.medicconnect.models.Person;
-import java.time.LocalDate;       // for DOB
-import java.time.LocalDateTime;   // for registrationDate, associatedDate
-
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import com.medicconnect.models.Organization;
+import com.medicconnect.permissions.Permission;
 
 public class PersonDTO {
 
+    private String userId;
     private String name;
     private LocalDate dob;
     private String gender;
@@ -15,11 +17,22 @@ public class PersonDTO {
     private String email;
     private String mobile;
     private String password;
-    private String role;
-    private List<String> organizationIds;
-    private String documents;  // JSON string for documents like Aadhar, PAN etc.
+    private Boolean agreement;
+    private String fullAddress;
+    private String country;
+    private String state;
+    private String city;
+    private String pincode;
+    private String documents;
+    private LocalDateTime registrationDate;
+    private LocalDateTime associatedDate;
+    private List<Permission> permissions;
+    private Organization organization;
 
     // ---------------- Getters & Setters ----------------
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
+
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
@@ -41,18 +54,43 @@ public class PersonDTO {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
-    public String getRole() { return role; }
-    public void setRole(String role) { this.role = role; }
+    public Boolean getAgreement() { return agreement; }
+    public void setAgreement(Boolean agreement) { this.agreement = agreement; }
 
-    public List<String> getOrganizationIds() { return organizationIds; }
-    public void setOrganizationIds(List<String> organizationIds) { this.organizationIds = organizationIds; }
+    public String getFullAddress() { return fullAddress; }
+    public void setFullAddress(String fullAddress) { this.fullAddress = fullAddress; }
+
+    public String getCountry() { return country; }
+    public void setCountry(String country) { this.country = country; }
+
+    public String getState() { return state; }
+    public void setState(String state) { this.state = state; }
+
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+
+    public String getPincode() { return pincode; }
+    public void setPincode(String pincode) { this.pincode = pincode; }
 
     public String getDocuments() { return documents; }
     public void setDocuments(String documents) { this.documents = documents; }
 
+    public LocalDateTime getRegistrationDate() { return registrationDate; }
+    public void setRegistrationDate(LocalDateTime registrationDate) { this.registrationDate = registrationDate; }
+
+    public LocalDateTime getAssociatedDate() { return associatedDate; }
+    public void setAssociatedDate(LocalDateTime associatedDate) { this.associatedDate = associatedDate; }
+
+    public List<Permission> getPermissions() { return permissions; }
+    public void setPermissions(List<Permission> permissions) { this.permissions = permissions; }
+
+    public Organization getOrganization() { return organization; }
+    public void setOrganization(Organization organization) { this.organization = organization; }
+
     // ---------------- Convert DTO to Entity ----------------
     public Person toPerson() {
         Person person = new Person();
+        person.setUserId(this.userId);
         person.setName(this.name);
         person.setDob(this.dob);
         person.setGender(this.gender);
@@ -60,8 +98,17 @@ public class PersonDTO {
         person.setEmail(this.email);
         person.setMobile(this.mobile);
         person.setPassword(this.password);
-        person.setRole(this.role != null ? this.role : "USER");
+        person.setAgreement(this.agreement);
+        person.setFullAddress(this.fullAddress);
+        person.setCountry(this.country);
+        person.setState(this.state);
+        person.setCity(this.city);
+        person.setPincode(this.pincode);
         person.setDocuments(this.documents);
+        person.setRegistrationDate(this.registrationDate);
+        person.setAssociatedDate(this.associatedDate);
+        person.setPermissions(this.permissions);
+        person.setOrganization(this.organization);
         return person;
     }
 }

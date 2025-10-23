@@ -16,25 +16,70 @@ public class Organization {
     @Column(name = "org_id", unique = true, nullable = false, updatable = false)
     private String orgId;
 
+    // -----------------------------
+    // Organization Details (Basic Info)
+    // -----------------------------
     @Column(name = "organization_name")
     private String organizationName;
 
+    @Column(name = "organization_category")
     private String category;
-    private String registrationNumber;
-    private Integer yearOfEstablishment;
-    private String ownershipType;
-    private String type;
 
-    @Column(nullable = false)
+    @Column(name = "organization_registration_number")
+    private String registrationNumber;
+
+    @Column(name = "organization_year_of_establishment")
+    private Integer yearOfEstablishment;
+
+    @Column(name = "organization_ownership_type")
+    private String ownershipType;
+
+    // -----------------------------
+    // Organization Contact Info
+    // -----------------------------
+    @Column(name = "organization_email", nullable = false)
     private String email;
 
+    @Column(name = "organization_mobile")
     private String mobile;
+
+    @Column(name = "organization_landline_country_code")
+    private String landlineCountryCode;
+
+    @Column(name = "organization_landline_area_code")
+    private String landlineAreaCode;
+
+    @Column(name = "organization_landline_local_number")
+    private String landlineLocalNumber;
+
+    // -----------------------------
+    // Organization Address
+    // -----------------------------
+    @Column(name = "organization_address_full_address")
     private String fullAddress;
+
+    @Column(name = "organization_address_country")
     private String country;
+
+    @Column(name = "organization_address_state")
     private String state;
+
+    @Column(name = "organization_address_city")
     private String city;
+
+    @Column(name = "organization_address_pincode")
     private String pincode;
 
+    // -----------------------------
+    // Documents
+    // -----------------------------
+    @Lob
+    @Column(name = "organization_documents", columnDefinition = "TEXT")
+    private String documents;
+
+    // -----------------------------
+    // Metadata
+    // -----------------------------
     @Column(name = "created_at", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
@@ -42,19 +87,15 @@ public class Organization {
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Person> persons;
 
-    @Lob
-    @Column(columnDefinition = "TEXT")
-    private String documents;
-
-    // Automatically set orgId and createdAt before persisting
+    // -----------------------------
+    // Lifecycle
+    // -----------------------------
     @PrePersist
     protected void onCreate() {
-        if (this.orgId == null) {
-            this.orgId = "ORG-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        }
-        if (this.createdAt == null) {
+        if (this.orgId == null)
+            this.orgId = "ORG" + String.format("%04d", (int) (Math.random() * 10000));
+        if (this.createdAt == null)
             this.createdAt = new Date();
-        }
     }
 
     // -----------------------------
@@ -81,14 +122,20 @@ public class Organization {
     public String getOwnershipType() { return ownershipType; }
     public void setOwnershipType(String ownershipType) { this.ownershipType = ownershipType; }
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
-
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
     public String getMobile() { return mobile; }
     public void setMobile(String mobile) { this.mobile = mobile; }
+
+    public String getLandlineCountryCode() { return landlineCountryCode; }
+    public void setLandlineCountryCode(String landlineCountryCode) { this.landlineCountryCode = landlineCountryCode; }
+
+    public String getLandlineAreaCode() { return landlineAreaCode; }
+    public void setLandlineAreaCode(String landlineAreaCode) { this.landlineAreaCode = landlineAreaCode; }
+
+    public String getLandlineLocalNumber() { return landlineLocalNumber; }
+    public void setLandlineLocalNumber(String landlineLocalNumber) { this.landlineLocalNumber = landlineLocalNumber; }
 
     public String getFullAddress() { return fullAddress; }
     public void setFullAddress(String fullAddress) { this.fullAddress = fullAddress; }
@@ -105,12 +152,12 @@ public class Organization {
     public String getPincode() { return pincode; }
     public void setPincode(String pincode) { this.pincode = pincode; }
 
-    public List<Person> getPersons() { return persons; }
-    public void setPersons(List<Person> persons) { this.persons = persons; }
-
     public String getDocuments() { return documents; }
     public void setDocuments(String documents) { this.documents = documents; }
 
     public Date getCreatedAt() { return createdAt; }
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
+
+    public List<Person> getPersons() { return persons; }
+    public void setPersons(List<Person> persons) { this.persons = persons; }
 }

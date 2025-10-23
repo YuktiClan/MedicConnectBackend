@@ -70,7 +70,6 @@ public class PersonService {
         }
         person.setPassword(passwordEncoder.encode(rawPassword));
 
-        person.setRole("ADMIN");
         person.setOrganization(org);
         ValidationUtils.validateEmail(person.getEmail());
 

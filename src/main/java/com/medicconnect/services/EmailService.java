@@ -28,7 +28,6 @@ public class EmailService {
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", "587");
 
-        // Jakarta Mail Authenticator
         return Session.getInstance(props, new jakarta.mail.Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
@@ -91,17 +90,16 @@ public class EmailService {
     // -----------------------------
     // Person/User Registration Email
     // -----------------------------
-    public String generatePersonRegistrationSuccessEmail(String name, String role, String userId, String email, String orgName, LocalDateTime createdAt) {
+    public String generatePersonRegistrationSuccessEmail(String name, String userId, String email, String orgName, LocalDateTime createdAt) {
         String registeredAt = createdAt.format(DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a"));
         return """
         <html>
         <body style="font-family:Arial,sans-serif; background:#f4f8fb; padding:20px;">
             <div style="max-width:600px; margin:auto; background:#fff; padding:25px; border-radius:12px;">
-                <h2 style="color:#0077ff;">%s Account Registration Successful</h2>
+                <h2 style="color:#0077ff;">Account Registration Successful</h2>
                 <p>Dear <strong>%s</strong>,</p>
                 <p>Your account under the organization <strong>%s</strong> has been successfully created.</p>
                 <div style="padding:12px; background:#e8f3ff; border-left:5px solid #0077ff; border-radius:6px;">
-                    <p><strong>User Role:</strong> %s</p>
                     <p><strong>User ID:</strong> %s</p>
                     <p><strong>Email:</strong> %s</p>
                     <p><strong>Registered On:</strong> %s</p>
@@ -116,7 +114,7 @@ public class EmailService {
             </div>
         </body>
         </html>
-        """.formatted(role, name, orgName, role, userId, email, registeredAt);
+        """.formatted(name, orgName, userId, email, registeredAt);
     }
 
     // -----------------------------

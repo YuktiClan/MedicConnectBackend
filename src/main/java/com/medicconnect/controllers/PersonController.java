@@ -7,9 +7,8 @@ import com.medicconnect.services.PersonService;
 import com.medicconnect.utils.ResponseUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.time.LocalDate;       // for DOB
-import java.time.LocalDateTime;   // for registrationDate, associatedDate
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -48,8 +47,11 @@ public class PersonController {
             if (person.getEmail() != null) {
                 String orgName = person.getOrganization() != null ? person.getOrganization().getOrganizationName() : "N/A";
                 String htmlBody = emailService.generatePersonRegistrationSuccessEmail(
-                        person.getName(), person.getRole(), person.getUserId(),
-                        person.getEmail(), orgName, LocalDateTime.now() 
+                        person.getName(),
+                        person.getUserId(),
+                        person.getEmail(),
+                        orgName,
+                        LocalDateTime.now()
                 );
                 emailService.sendEmail(person.getEmail(),
                         "Medic-connect | Registration Successful",

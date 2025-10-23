@@ -2,13 +2,11 @@ package com.medicconnect.models;
 
 import com.medicconnect.permissions.Permission;
 import jakarta.persistence.*;
-import java.time.LocalDate;       // for DOB
-import java.time.LocalDateTime;   // for registrationDate, associatedDate
-
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-
-
 
 @Entity
 @Table(name = "person")
@@ -18,77 +16,97 @@ public class Person {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false, updatable = false)
+    @Column(name = "user_id", unique = true, nullable = false, updatable = false)
     private String userId;
 
-    @Column(nullable = false)
+    // -----------------------------
+    // Personal Information
+    // -----------------------------
+    @Column(name = "personal_name", nullable = false)
     private String name;
 
+    @Column(name = "personal_dob")
     private LocalDate dob;
 
+    @Column(name = "personal_gender")
     private String gender;
+
+    @Column(name = "personal_blood_group")
     private String bloodGroup;
 
-    @Column(unique = true, nullable = false)
+    // -----------------------------
+    // Personal Contact
+    // -----------------------------
+    @Column(name = "personal_email", unique = true, nullable = false)
     private String email;
 
-    @Column(name = "phone_number", unique = true, nullable = false)
+    @Column(name = "personal_mobile", unique = true, nullable = false)
     private String mobile;
 
-    @Column(nullable = false)
+    // -----------------------------
+    // Auth
+    // -----------------------------
+    @Column(name = "auth_password", nullable = false)
     private String password;
 
-    private String role;
+    @Column(name = "auth_agreement")
+    private Boolean agreement;
 
     // -----------------------------
-    // Address fields directly
+    // Address
     // -----------------------------
+    @Column(name = "personal_address_full_address")
     private String fullAddress;
+
+    @Column(name = "personal_address_country")
     private String country;
+
+    @Column(name = "personal_address_state")
     private String state;
+
+    @Column(name = "personal_address_city")
     private String city;
+
+    @Column(name = "personal_address_pincode")
     private String pincode;
 
     // -----------------------------
-    // Permissions
+    // Documents
     // -----------------------------
+    @Lob
+    @Column(name = "personal_documents", columnDefinition = "TEXT")
+    private String documents;
+
+    // -----------------------------
+    // Metadata
+    // -----------------------------
+    @Column(name = "registration_date")
+    private LocalDateTime registrationDate;
+
+    @Column(name = "associated_date")
+    private LocalDateTime associatedDate;
+
     @ElementCollection(targetClass = Permission.class)
     @Enumerated(EnumType.STRING)
     private List<Permission> permissions;
 
-    // -----------------------------
-    // Timestamps
-    // -----------------------------
-    
-    private LocalDateTime registrationDate;
-
-    private LocalDateTime associatedDate;
-
-    // -----------------------------
-    // Relationships
-    // -----------------------------
     @ManyToOne
     @JoinColumn(name = "org_id")
     private Organization organization;
 
     // -----------------------------
-    // Documents JSON
-    // -----------------------------
-    @Lob
-    @Column(columnDefinition = "TEXT")
-    private String documents;
-
-    // -----------------------------
-    // Lifecycle Hooks
+    // Lifecycle
     // -----------------------------
     @PrePersist
     protected void onCreate() {
-    if (this.userId == null)
-        this.userId = "USR-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-    if (this.registrationDate == null)
-        this.registrationDate = LocalDateTime.now();
-}
-
+        if (this.userId == null)
+            this.userId = "USR-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        if (this.registrationDate == null)
+            this.registrationDate = LocalDateTime.now();
+        if (this.password != null && !this.password.startsWith("$2a$")) {
+            this.password = new BCryptPasswordEncoder().encode(this.password);
+        }
+    }
 
     // -----------------------------
     // Getters & Setters
@@ -120,8 +138,8 @@ public class Person {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
-    public String getRole() { return role; }
-    public void setRole(String role) { this.role = role; }
+    public Boolean getAgreement() { return agreement; }
+    public void setAgreement(Boolean agreement) { this.agreement = agreement; }
 
     public String getFullAddress() { return fullAddress; }
     public void setFullAddress(String fullAddress) { this.fullAddress = fullAddress; }
@@ -138,8 +156,8 @@ public class Person {
     public String getPincode() { return pincode; }
     public void setPincode(String pincode) { this.pincode = pincode; }
 
-    public List<Permission> getPermissions() { return permissions; }
-    public void setPermissions(List<Permission> permissions) { this.permissions = permissions; }
+    public String getDocuments() { return documents; }
+    public void setDocuments(String documents) { this.documents = documents; }
 
     public LocalDateTime getRegistrationDate() { return registrationDate; }
     public void setRegistrationDate(LocalDateTime registrationDate) { this.registrationDate = registrationDate; }
@@ -147,10 +165,9 @@ public class Person {
     public LocalDateTime getAssociatedDate() { return associatedDate; }
     public void setAssociatedDate(LocalDateTime associatedDate) { this.associatedDate = associatedDate; }
 
+    public List<Permission> getPermissions() { return permissions; }
+    public void setPermissions(List<Permission> permissions) { this.permissions = permissions; }
+
     public Organization getOrganization() { return organization; }
     public void setOrganization(Organization organization) { this.organization = organization; }
-
-    public String getDocuments() { return documents; }
-    public void setDocuments(String documents) { this.documents = documents; }
-
 }

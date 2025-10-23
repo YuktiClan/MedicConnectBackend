@@ -1,9 +1,13 @@
 package com.medicconnect.dto;
 
 import com.medicconnect.models.Organization;
+import java.util.Date;
+import java.util.List;
+import com.medicconnect.models.Person;
 
 public class OrganizationDTO {
 
+    private String orgId;
     private String organizationName;
     private String category;
     private String registrationNumber;
@@ -11,10 +15,22 @@ public class OrganizationDTO {
     private String ownershipType;
     private String email;
     private String mobile;
-    private String type;       // Optional: type of org
-    private String documents;  // JSON string of documents
+    private String landlineCountryCode;
+    private String landlineAreaCode;
+    private String landlineLocalNumber;
+    private String fullAddress;
+    private String country;
+    private String state;
+    private String city;
+    private String pincode;
+    private String documents;
+    private Date createdAt;
+    private List<Person> persons;
 
     // ---------------- Getters & Setters ----------------
+    public String getOrgId() { return orgId; }
+    public void setOrgId(String orgId) { this.orgId = orgId; }
+
     public String getOrganizationName() { return organizationName; }
     public void setOrganizationName(String organizationName) { this.organizationName = organizationName; }
 
@@ -36,24 +52,61 @@ public class OrganizationDTO {
     public String getMobile() { return mobile; }
     public void setMobile(String mobile) { this.mobile = mobile; }
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public String getLandlineCountryCode() { return landlineCountryCode; }
+    public void setLandlineCountryCode(String landlineCountryCode) { this.landlineCountryCode = landlineCountryCode; }
+
+    public String getLandlineAreaCode() { return landlineAreaCode; }
+    public void setLandlineAreaCode(String landlineAreaCode) { this.landlineAreaCode = landlineAreaCode; }
+
+    public String getLandlineLocalNumber() { return landlineLocalNumber; }
+    public void setLandlineLocalNumber(String landlineLocalNumber) { this.landlineLocalNumber = landlineLocalNumber; }
+
+    public String getFullAddress() { return fullAddress; }
+    public void setFullAddress(String fullAddress) { this.fullAddress = fullAddress; }
+
+    public String getCountry() { return country; }
+    public void setCountry(String country) { this.country = country; }
+
+    public String getState() { return state; }
+    public void setState(String state) { this.state = state; }
+
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+
+    public String getPincode() { return pincode; }
+    public void setPincode(String pincode) { this.pincode = pincode; }
 
     public String getDocuments() { return documents; }
     public void setDocuments(String documents) { this.documents = documents; }
 
+    public Date getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
+
+    public List<Person> getPersons() { return persons; }
+    public void setPersons(List<Person> persons) { this.persons = persons; }
+
     // ---------------- Convert DTO to Entity ----------------
     public Organization toOrganization() {
         Organization org = new Organization();
+        org.setOrgId(this.orgId);
         org.setOrganizationName(this.organizationName);
         org.setCategory(this.category);
         org.setRegistrationNumber(this.registrationNumber);
         org.setYearOfEstablishment(this.yearOfEstablishment);
         org.setOwnershipType(this.ownershipType);
         org.setEmail(this.email);
-        org.setMobile(this.mobile); // Match entity field
-        org.setType(this.type != null ? this.type : "Unknown");
+        org.setMobile(this.mobile);
+        org.setLandlineCountryCode(this.landlineCountryCode);
+        org.setLandlineAreaCode(this.landlineAreaCode);
+        org.setLandlineLocalNumber(this.landlineLocalNumber);
+        org.setFullAddress(this.fullAddress);
+        org.setCountry(this.country);
+        org.setState(this.state);
+        org.setCity(this.city);
+        org.setPincode(this.pincode);
         org.setDocuments(this.documents);
+        org.setCreatedAt(this.createdAt);
+        org.setPersons(this.persons);
         return org;
     }
 }
