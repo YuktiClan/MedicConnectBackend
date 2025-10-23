@@ -50,6 +50,11 @@ public final class FieldConfig {
     public static final long F_SAME_AS_ORG_EMAIL = 1L << 36;
     public static final long F_SAME_AS_ORG_MOBILE = 1L << 37;
 
+    public static final long F_DEGREES = 1L << 38;
+    public static final long F_CERTIFICATES = 1L << 39;
+    public static final long F_SPECIALITIES = 1L << 40;
+
+
     // ----------------------
     // Pre-built form masks
     // ----------------------

@@ -1,9 +1,9 @@
 package com.medicconnect.models;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "organization")
@@ -16,9 +16,7 @@ public class Organization {
     @Column(name = "org_id", unique = true, nullable = false, updatable = false)
     private String orgId;
 
-    // -----------------------------
-    // Organization Details (Basic Info)
-    // -----------------------------
+    // ----------------------------- Organization Details -----------------------------
     @Column(name = "organization_name")
     private String organizationName;
 
@@ -34,9 +32,7 @@ public class Organization {
     @Column(name = "organization_ownership_type")
     private String ownershipType;
 
-    // -----------------------------
-    // Organization Contact Info
-    // -----------------------------
+    // ----------------------------- Contact Info -----------------------------
     @Column(name = "organization_email", nullable = false)
     private String email;
 
@@ -46,9 +42,7 @@ public class Organization {
     @Column(name = "organization_landline")
     private String landline;
 
-    // -----------------------------
-    // Organization Address
-    // -----------------------------
+    // ----------------------------- Address -----------------------------
     @Column(name = "organization_address_full_address")
     private String fullAddress;
 
@@ -64,16 +58,12 @@ public class Organization {
     @Column(name = "organization_address_pincode")
     private String pincode;
 
-    // -----------------------------
-    // Documents
-    // -----------------------------
+    // ----------------------------- Documents -----------------------------
     @Lob
     @Column(name = "organization_documents", columnDefinition = "TEXT")
-    private String documents;
+    private String documents; // JSON string or comma-separated document IDs
 
-    // -----------------------------
-    // Metadata
-    // -----------------------------
+    // ----------------------------- Metadata -----------------------------
     @Column(name = "created_at", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
@@ -81,9 +71,7 @@ public class Organization {
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Person> persons;
 
-    // -----------------------------
-    // Lifecycle
-    // -----------------------------
+    // ----------------------------- Lifecycle -----------------------------
     @PrePersist
     protected void onCreate() {
         if (this.orgId == null)
@@ -92,9 +80,25 @@ public class Organization {
             this.createdAt = new Date();
     }
 
-    // -----------------------------
-    // Getters & Setters
-    // -----------------------------
+    // ----------------------------- Methods to handle documents -----------------------------
+    public void appendDocument(String documentId) {
+        if (this.documents == null || this.documents.isEmpty()) {
+            this.documents = documentId;
+        } else {
+            this.documents += "," + documentId;
+        }
+    }
+
+    public List<String> getDocumentIds() {
+        List<String> list = new ArrayList<>();
+        if (documents != null && !documents.isEmpty()) {
+            String[] ids = documents.split(",");
+            for (String id : ids) list.add(id.trim());
+        }
+        return list;
+    }
+
+    // ----------------------------- Getters & Setters -----------------------------
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

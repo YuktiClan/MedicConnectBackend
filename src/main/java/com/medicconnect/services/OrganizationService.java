@@ -78,6 +78,7 @@ public class OrganizationService {
         return organizationRepository.findAll();
     }
 
+    @Transactional
     public Organization updateOrganization(Long id, OrganizationDTO orgDTO) {
         Organization org = getOrganizationById(id);
         if (orgDTO.getOrganizationName() != null) org.setOrganizationName(orgDTO.getOrganizationName());
@@ -85,6 +86,12 @@ public class OrganizationService {
         if (orgDTO.getRegistrationNumber() != null) org.setRegistrationNumber(orgDTO.getRegistrationNumber());
         if (orgDTO.getOwnershipType() != null) org.setOwnershipType(orgDTO.getOwnershipType());
         if (orgDTO.getYearOfEstablishment() != null) org.setYearOfEstablishment(orgDTO.getYearOfEstablishment());
+        if (orgDTO.getDocuments() != null) org.setDocuments(orgDTO.getDocuments());
+        return organizationRepository.save(org);
+    }
+
+    @Transactional
+    public Organization updateOrganization(Organization org) {
         return organizationRepository.save(org);
     }
 

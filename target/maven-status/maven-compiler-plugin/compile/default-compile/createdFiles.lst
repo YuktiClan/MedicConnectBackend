@@ -37,4 +37,5 @@ com\medicconnect\services\DocumentService.class
 com\medicconnect\controllers\RegistrationController.class
 com\medicconnect\controllers\AuthController.class
 com\medicconnect\exceptions\ResourceNotFoundException.class
+com\medicconnect\controllers\DocumentController.class
 com\medicconnect\services\AuthService.class

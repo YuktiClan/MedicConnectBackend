@@ -2,10 +2,9 @@ package com.medicconnect.models;
 
 import com.medicconnect.permissions.Permission;
 import jakarta.persistence.*;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,7 +19,7 @@ public class Person {
     @Column(name = "user_id", unique = true, nullable = false, updatable = false)
     private String userId;
 
-    // ----------------------------- Personal Information -----------------------------
+    // ---------------- Personal Info ----------------
     @Column(name = "personal_name", nullable = false)
     private String name;
 
@@ -33,21 +32,21 @@ public class Person {
     @Column(name = "personal_blood_group")
     private String bloodGroup;
 
-    // ----------------------------- Contact -----------------------------
+    // ---------------- Contact ----------------
     @Column(name = "personal_email", unique = true, nullable = false)
     private String email;
 
     @Column(name = "personal_mobile", unique = true, nullable = false)
     private String mobile;
 
-    // ----------------------------- Auth -----------------------------
+    // ---------------- Auth ----------------
     @Column(name = "auth_password", nullable = false)
     private String password;
 
     @Column(name = "auth_agreement")
     private Boolean agreement;
 
-    // ----------------------------- Address -----------------------------
+    // ---------------- Address ----------------
     @Column(name = "personal_address_full_address")
     private String fullAddress;
 
@@ -63,12 +62,12 @@ public class Person {
     @Column(name = "personal_address_pincode")
     private String pincode;
 
-    // ----------------------------- Documents -----------------------------
+    // ---------------- Documents ----------------
     @Lob
     @Column(name = "personal_documents", columnDefinition = "TEXT")
     private String documents;
 
-    // ----------------------------- Metadata -----------------------------
+    // ---------------- Metadata ----------------
     @Column(name = "registration_date")
     private LocalDateTime registrationDate;
 
@@ -79,12 +78,12 @@ public class Person {
     @Enumerated(EnumType.STRING)
     private List<Permission> permissions;
 
-    // ----------------------------- Organization -----------------------------
+    // ---------------- Organization ----------------
     @ManyToOne
     @JoinColumn(name = "org_id", nullable = false)
     private Organization organization;
 
-    // ----------------------------- Lifecycle -----------------------------
+    // ---------------- Lifecycle ----------------
     @PrePersist
     protected void onCreate() {
         if (this.userId == null) {
@@ -93,12 +92,28 @@ public class Person {
         if (this.registrationDate == null) {
             this.registrationDate = LocalDateTime.now();
         }
-        if (this.password != null && !this.password.startsWith("$2a$")) {
-            this.password = new BCryptPasswordEncoder().encode(this.password);
+        // Password encoding should be handled in the service layer
+    }
+
+    // ---------------- Methods to handle documents ----------------
+    public void appendDocument(String documentId) {
+        if (this.documents == null || this.documents.isEmpty()) {
+            this.documents = documentId;
+        } else {
+            this.documents += "," + documentId;
         }
     }
 
-    // ----------------------------- Getters & Setters -----------------------------
+    public List<String> getDocumentIds() {
+        List<String> list = new ArrayList<>();
+        if (documents != null && !documents.isEmpty()) {
+            String[] ids = documents.split(",");
+            for (String id : ids) list.add(id.trim());
+        }
+        return list;
+    }
+
+    // ---------------- Getters & Setters ----------------
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

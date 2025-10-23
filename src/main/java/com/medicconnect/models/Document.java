@@ -28,14 +28,25 @@ public class Document {
     @Column(name = "uploaded_at", nullable = false)
     private LocalDateTime uploadedAt;
 
-    // ---------------- Relations (nullable for staged documents) ----------------
+    // ---------------- Relations ----------------
     @ManyToOne
-    @JoinColumn(name = "person_id")
+    @JoinColumn(name = "person_id", nullable = true)
     private Person person;
 
     @ManyToOne
-    @JoinColumn(name = "org_id")
+    @JoinColumn(name = "org_id", nullable = true)
     private Organization organization;
+
+    // ---------------- Constructors ----------------
+    public Document() { }
+
+    public Document(String fileName, byte[] fileData, Person person, Organization organization) {
+        this.fileName = fileName;
+        this.fileData = fileData;
+        this.person = person;
+        this.organization = organization;
+        this.verified = false;
+    }
 
     // ---------------- Lifecycle ----------------
     @PrePersist
@@ -70,4 +81,17 @@ public class Document {
 
     public Organization getOrganization() { return organization; }
     public void setOrganization(Organization organization) { this.organization = organization; }
+
+    // ---------------- toString ----------------
+    @Override
+    public String toString() {
+        return "Document{" +
+                "documentId='" + documentId + '\'' +
+                ", fileName='" + fileName + '\'' +
+                ", verified=" + verified +
+                ", uploadedAt=" + uploadedAt +
+                ", person=" + (person != null ? person.getId() : null) +
+                ", organization=" + (organization != null ? organization.getId() : null) +
+                '}';
+    }
 }

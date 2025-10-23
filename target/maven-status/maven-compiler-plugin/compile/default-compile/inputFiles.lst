@@ -25,6 +25,7 @@ D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\utils\Respons
 D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\repositories\OrganizationRepository.java
 D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\controllers\OrganizationController.java
 D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\models\Organization.java
+D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\controllers\DocumentController.java
 D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\controllers\FormController.java
 D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\config\SecurityConfig.java
 D:\MedicConnect\MedicConnectBackend\src\main\java\com\medicconnect\repositories\PersonRepository.java

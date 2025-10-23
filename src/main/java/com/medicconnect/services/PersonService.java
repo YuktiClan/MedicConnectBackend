@@ -59,6 +59,7 @@ public class PersonService {
         personRepository.deleteById(id);
     }
 
+    @Transactional
     public Person updatePerson(Long id, PersonDTO dto, Organization org) {
         Person person = findById(id);
         if (dto.getName() != null) person.setName(dto.getName());
@@ -67,6 +68,12 @@ public class PersonService {
         if (dto.getGender() != null) person.setGender(dto.getGender());
         if (dto.getBloodGroup() != null) person.setBloodGroup(dto.getBloodGroup());
         if (org != null) person.setOrganization(org);
+        if (dto.getDocuments() != null) person.setDocuments(dto.getDocuments());
+        return personRepository.save(person);
+    }
+
+    @Transactional
+    public Person updatePerson(Person person) {
         return personRepository.save(person);
     }
 

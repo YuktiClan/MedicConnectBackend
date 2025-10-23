@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DocumentRepository extends JpaRepository<Document, Long> {
@@ -17,9 +18,13 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
     // Fetch all documents linked to a specific Organization
     List<Document> findByOrganization(Organization organization);
 
-    // Optional: Fetch only verified documents for a Person
+    // Fetch only verified documents for a Person
     List<Document> findByPersonAndVerifiedTrue(Person person);
 
-    // Optional: Fetch only verified documents for an Organization
+    // Fetch only verified documents for an Organization
     List<Document> findByOrganizationAndVerifiedTrue(Organization organization);
+
+    // ---------------- Optimized ----------------
+    // Fetch a single document by its unique documentId
+    Optional<Document> findByDocumentId(String documentId);
 }
