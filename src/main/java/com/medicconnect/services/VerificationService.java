@@ -1,6 +1,5 @@
 package com.medicconnect.services;
 
-import com.medicconnect.services.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,24 +20,30 @@ public class VerificationService {
     }
 
     // -----------------------------
-    // Send OTP via email or phone
+    // Send OTP (login, email verification, phone)
     // -----------------------------
     public void sendOtp(String target, String type) {
         String otp = String.format("%06d", random.nextInt(1_000_000));
         otpStore.put(target, otp);
 
-        if ("email".equalsIgnoreCase(type)) {
-            try {
-                // Use EmailService for sending OTP email
-                String htmlBody = emailService.generateLoginOtpEmail(target, otp);
-                emailService.sendEmail(target, "Medic-connect OTP Verification", htmlBody);
-                System.out.println("[VerificationService] Email OTP sent to " + target);
-            } catch (Exception e) {
-                System.err.println("[VerificationService] Failed to send OTP email to " + target + ": " + e.getMessage());
+        try {
+            if ("phone".equalsIgnoreCase(type)) {
+                // Log phone OTP to console
+                System.out.println("[VerificationService] OTP for phone " + target + ": " + otp);
+            } else if ("login".equalsIgnoreCase(type) || "email".equalsIgnoreCase(type) || "verification".equalsIgnoreCase(type)) {
+                String htmlBody;
+                if ("login".equalsIgnoreCase(type)) {
+                    htmlBody = emailService.generateLoginOtpEmail(target, otp);
+                } else {
+                    htmlBody = emailService.generateEmailVerificationOtpEmail(target, otp);
+                }
+                emailService.sendEmail(target, "Medic-connect OTP", htmlBody);
+                System.out.println("[VerificationService] OTP sent to " + target + " (" + type + ")");
+            } else {
+                throw new IllegalArgumentException("Invalid OTP type: " + type);
             }
-        } else {
-            // For phone, just log (can integrate SMS later)
-            System.out.println("[VerificationService] Phone OTP for " + target + ": " + otp);
+        } catch (Exception e) {
+            System.err.println("[VerificationService] Failed to send OTP to " + target + ": " + e.getMessage());
         }
     }
 

@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-@JsonInclude(JsonInclude.Include.NON_NULL) // Exclude null fields globally
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FormField {
 
     private String key;
@@ -17,7 +17,7 @@ public class FormField {
     private List<String> options;
     private Map<String, Object> extra;
 
-    // Optional metadata, only serialized when non-null or non-default
+    // Optional metadata
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String sameAsOrganizationSource;
 
@@ -25,15 +25,16 @@ public class FormField {
     private String sameAsOrganizationTarget;
 
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private boolean verifyButton; // false will not be serialized
+    private boolean verifyButton;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String note;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<FormField> subFields; // <-- Added for multi-entry fields
+
     // ----------------- Constructors -----------------
-    public FormField() {
-        this(false);
-    }
+    public FormField() { this(false); }
 
     public FormField(boolean required) {
         this.required = required;
@@ -82,7 +83,6 @@ public class FormField {
         this.extra = extra != null ? extra : new LinkedHashMap<>();
     }
 
-    // ----------------- Metadata Getters / Setters -----------------
     public String getSameAsOrganizationSource() { return sameAsOrganizationSource; }
     public void setSameAsOrganizationSource(String sameAsOrganizationSource) { this.sameAsOrganizationSource = sameAsOrganizationSource; }
 
@@ -94,4 +94,7 @@ public class FormField {
 
     public String getNote() { return note; }
     public void setNote(String note) { this.note = note; }
+
+    public List<FormField> getSubFields() { return subFields; }      // Getter
+    public void setSubFields(List<FormField> subFields) { this.subFields = subFields; } // Setter
 }

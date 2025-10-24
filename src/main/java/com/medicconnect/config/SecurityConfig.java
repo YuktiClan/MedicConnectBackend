@@ -2,25 +2,21 @@ package com.medicconnect.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
 @Configuration
+@EnableMethodSecurity  // Enables method-level security annotations like @PreAuthorize
 public class SecurityConfig {
 
-    // -----------------------------
-    // Password Encoder Bean
-    // -----------------------------
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // -----------------------------
-    // Security Filter Chain
-    // -----------------------------
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -30,13 +26,13 @@ public class SecurityConfig {
             // Stateless session management
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            // Make all endpoints public
-            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+            // Require authentication for all endpoints by default
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/admin/**").authenticated() // admin endpoints require login
+                .anyRequest().permitAll()
+            )
 
-            // Disable default form login
             .formLogin(form -> form.disable())
-
-            // Disable HTTP Basic Auth
             .httpBasic(httpBasic -> httpBasic.disable());
 
         return http.build();

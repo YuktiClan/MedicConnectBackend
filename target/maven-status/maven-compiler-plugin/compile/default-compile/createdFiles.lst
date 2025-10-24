@@ -4,6 +4,7 @@ com\medicconnect\dto\OtpRequest.class
 com\medicconnect\exceptions\BadRequestException.class
 com\medicconnect\models\Organization.class
 com\medicconnect\utils\ValidationUtils.class
+com\medicconnect\models\Status.class
 com\medicconnect\repositories\OrganizationRepository.class
 com\medicconnect\utils\ResponseUtils.class
 com\medicconnect\config\FieldConfig$Validator.class
@@ -18,6 +19,7 @@ com\medicconnect\App.class
 com\medicconnect\controllers\OrganizationController.class
 com\medicconnect\exceptions\GlobalExceptionHandler.class
 com\medicconnect\models\Person.class
+com\medicconnect\controllers\AdminController.class
 com\medicconnect\services\OrganizationService.class
 com\medicconnect\controllers\VerificationController.class
 com\medicconnect\controllers\PersonController.class

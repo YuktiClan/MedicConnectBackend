@@ -16,10 +16,10 @@ public class Person {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // ---------------- User Info ----------------
     @Column(name = "user_id", unique = true, nullable = false, updatable = false)
     private String userId;
 
-    // ---------------- Personal Info ----------------
     @Column(name = "personal_name", nullable = false)
     private String name;
 
@@ -32,19 +32,29 @@ public class Person {
     @Column(name = "personal_blood_group")
     private String bloodGroup;
 
-    // ---------------- Contact ----------------
+    // ---------------- Contact Info ----------------
     @Column(name = "personal_email", unique = true, nullable = false)
     private String email;
 
     @Column(name = "personal_mobile", unique = true, nullable = false)
     private String mobile;
 
-    // ---------------- Auth ----------------
+    // ---------------- Authentication ----------------
     @Column(name = "auth_password", nullable = false)
     private String password;
 
     @Column(name = "auth_agreement")
     private Boolean agreement;
+
+    // ---------------- Roles & Status ----------------
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "person_roles", joinColumns = @JoinColumn(name = "person_id"))
+    @Column(name = "role")
+    private List<String> roles = new ArrayList<>();
+
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.PENDING;
 
     // ---------------- Address ----------------
     @Column(name = "personal_address_full_address")
@@ -83,7 +93,7 @@ public class Person {
     @JoinColumn(name = "org_id", nullable = false)
     private Organization organization;
 
-    // ---------------- Lifecycle ----------------
+    // ---------------- Lifecycle Hooks ----------------
     @PrePersist
     protected void onCreate() {
         if (this.userId == null) {
@@ -92,10 +102,9 @@ public class Person {
         if (this.registrationDate == null) {
             this.registrationDate = LocalDateTime.now();
         }
-        // Password encoding should be handled in the service layer
     }
 
-    // ---------------- Methods to handle documents ----------------
+    // ---------------- Document Utilities ----------------
     public void appendDocument(String documentId) {
         if (this.documents == null || this.documents.isEmpty()) {
             this.documents = documentId;
@@ -143,6 +152,12 @@ public class Person {
 
     public Boolean getAgreement() { return agreement; }
     public void setAgreement(Boolean agreement) { this.agreement = agreement; }
+
+    public List<String> getRoles() { return roles; }
+    public void setRoles(List<String> roles) { this.roles = roles; }
+
+    public Status getStatus() { return status; }
+    public void setStatus(Status status) { this.status = status; }
 
     public String getFullAddress() { return fullAddress; }
     public void setFullAddress(String fullAddress) { this.fullAddress = fullAddress; }

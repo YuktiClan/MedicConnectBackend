@@ -102,6 +102,9 @@ public class Organization {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
+    public String getName() {
+    return this.organizationName; }
+
     public String getOrgId() { return orgId; }
     public void setOrgId(String orgId) { this.orgId = orgId; }
 

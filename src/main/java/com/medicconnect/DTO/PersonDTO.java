@@ -28,6 +28,8 @@ public class PersonDTO {
     private LocalDateTime registrationDate;
     private LocalDateTime associatedDate;
     private List<Permission> permissions;
+    private List<String> roles; // <-- multiple roles
+    private String tempToken;
     private String orgId;
 
     // ---------------- Getters & Setters ----------------
@@ -85,6 +87,12 @@ public class PersonDTO {
     public List<Permission> getPermissions() { return permissions; }
     public void setPermissions(List<Permission> permissions) { this.permissions = permissions; }
 
+    public List<String> getRoles() { return roles; }
+    public void setRoles(List<String> roles) { this.roles = roles; }
+
+    public String getTempToken() { return tempToken; }
+    public void setTempToken(String tempToken) { this.tempToken = tempToken; }
+
     public String getOrgId() { return orgId; }
     public void setOrgId(String orgId) { this.orgId = orgId; }
 
@@ -109,6 +117,7 @@ public class PersonDTO {
         person.setRegistrationDate(this.registrationDate);
         person.setAssociatedDate(this.associatedDate);
         person.setPermissions(this.permissions);
+        person.setRoles(this.roles); // set multiple roles
         person.setOrganization(org);
         return person;
     }
@@ -132,6 +141,7 @@ public class PersonDTO {
         dto.setRegistrationDate(person.getRegistrationDate());
         dto.setAssociatedDate(person.getAssociatedDate());
         dto.setPermissions(person.getPermissions());
+        dto.setRoles(person.getRoles());
         dto.setOrgId(person.getOrganization() != null ? person.getOrganization().getOrgId() : null);
         return dto;
     }
